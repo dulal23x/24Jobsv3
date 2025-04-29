@@ -25,6 +25,7 @@ api/
 myapp/
 backend/
 new-react-django-project/
+24Jobv2/
 
 # Environment
 .env
