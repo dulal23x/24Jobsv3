@@ -1,0 +1,240 @@
+import React from 'react';
+import Layout from '../components/Layout';
+
+export default function Home() {
+  return (
+    <Layout>
+      <div className="font-sans">
+        {/* Hero Section - Job Search */}
+        <section className="py-10 bg-gray-50">
+          <div className="container">
+            <div className="text-center mb-8">
+              <h1 className="fw-bold fs-1 mb-2 text-gray-900">Find your dream job now</h1>
+              <p className="fs-5 text-gray-700">5 lakh+ jobs for you to explore</p>
+            </div>
+            
+            <div className="bg-white p-4 rounded-lg shadow-md max-w-5xl mx-auto">
+              <div className="d-flex flex-column flex-md-row gap-3">
+                <div className="flex-grow-1 position-relative">
+                  <div className="position-absolute top-50 start-0 translate-middle-y ms-3 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search" viewBox="0 0 16 16">
+                      <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="text" 
+                    className="form-control ps-5 py-3" 
+                    placeholder="Enter skills / designations / companies"
+                    aria-label="Job search"
+                  />
+                </div>
+                
+                <div className="flex-shrink-0">
+                  <button className="btn dropdown-toggle fw-medium text-start d-flex align-items-center justify-content-between w-100 py-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" style={{minWidth: '200px', border: '1px solid #dee2e6'}}>
+                    <span>Select experience</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-down" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="flex-grow-1">
+                  <input 
+                    type="text" 
+                    className="form-control py-3" 
+                    placeholder="Enter location"
+                    aria-label="Location"
+                  />
+                </div>
+                
+                <div className="flex-shrink-0">
+                  <button className="btn btn-primary w-100 py-3 fw-medium" style={{backgroundColor: '#3366FF', minWidth: '120px'}}>
+                    Search
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Popular Job Roles Section */}
+        <section className="py-8 bg-white">
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-md-5">
+                <div className="mb-4 mb-md-0">
+                  <img src="https://via.placeholder.com/350x300" alt="Discover jobs" className="img-fluid" />
+                  <h2 className="fw-bold fs-2 mt-4 mb-2">Discover jobs across popular roles</h2>
+                  <p className="text-gray-600">Select a role and we'll show you relevant jobs for it!</p>
+                </div>
+              </div>
+              
+              <div className="col-md-7">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">Full Stack Developer</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">17K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">Mobile / App Developer</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">2.9K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">Front End Developer</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">4.7K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">DevOps Engineer</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">2.7K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">Engineering Manager</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">1.5K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="border rounded-3 p-4 hover:shadow-md transition-all">
+                      <h3 className="fw-semibold fs-5 mb-1">Technical Lead</h3>
+                      <div className="d-flex align-items-center">
+                        <span className="text-gray-600">8.7K+ Jobs</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
+                          <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="d-flex justify-content-center mt-4">
+                  <div className="d-flex gap-1">
+                    <span className="bg-blue-600 rounded-circle" style={{width: '8px', height: '8px', display: 'block'}}></span>
+                    <span className="bg-gray-300 rounded-circle" style={{width: '8px', height: '8px', display: 'block'}}></span>
+                    <span className="bg-gray-300 rounded-circle" style={{width: '8px', height: '8px', display: 'block'}}></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-10 md:py-16">
+          <div className="container">
+            <h2 className="text-center fw-bold fs-2 mb-2 text-gray-900 xs-center">Why professionals choose 24Jobs</h2>
+            <p className="text-center text-gray-600 mb-8 fs-5 max-w-3xl mx-auto">Join millions of professionals advancing their careers with our specialized tools and community.</p>
+            
+            <div className="row g-4">
+              <div className="col-md-4 xs-my-2">
+                <div className="linkedin-card h-100 p-md-5 transition-all hover:shadow-lg hover:translate-y-[-5px] card-hover-effect">
+                  <div className="feature-icon-wrapper">
+                    <i className="bi bi-briefcase-fill"></i>
+                  </div>
+                  <h3 className="fw-semibold fs-4 mb-3 text-gray-900">Career Opportunities</h3>
+                  <p className="text-linkedin-body mb-4">Discover job opportunities tailored to your skills and experience.</p>
+                  <a href="#" className="btn-outline-linkedin d-inline-flex align-items-center gap-1 xs-mx-auto">
+                    Find jobs
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              
+              <div className="col-md-4 xs-my-2">
+                <div className="linkedin-card h-100 p-md-5 transition-all hover:shadow-lg hover:translate-y-[-5px] card-hover-effect">
+                  <div className="feature-icon-wrapper">
+                    <i className="bi bi-people-fill"></i>
+                  </div>
+                  <h3 className="fw-semibold fs-4 mb-3 text-gray-900">Networking</h3>
+                  <p className="text-linkedin-body mb-4">Connect with like-minded professionals and industry leaders.</p>
+                  <a href="#" className="btn-outline-linkedin d-inline-flex align-items-center gap-1 xs-mx-auto">
+                    Explore network
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              
+              <div className="col-md-4 xs-my-2">
+                <div className="linkedin-card h-100 p-md-5 transition-all hover:shadow-lg hover:translate-y-[-5px] card-hover-effect">
+                  <div className="feature-icon-wrapper">
+                    <i className="bi bi-lightbulb-fill"></i>
+                  </div>
+                  <h3 className="fw-semibold fs-4 mb-3 text-gray-900">Professional Insights</h3>
+                  <p className="text-linkedin-body mb-4">Access valuable industry insights and professional development resources.</p>
+                  <a href="#" className="btn-outline-linkedin d-inline-flex align-items-center gap-1 xs-mx-auto">
+                    Discover insights
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right" viewBox="0 0 16 16">
+                      <path fillRule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="py-16 bg-[#edf3f8]">
+          <div className="container">
+            <div className="cta-card bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
+              <div className="dashboard-stat-icon fs-4 mx-auto mb-4" style={{ width: '56px', height: '56px' }}>
+                <i className="bi bi-rocket-takeoff"></i>
+              </div>
+              <h3 className="fw-bold fs-2 mb-3 xs-text-sm text-gray-900">Take your professional network to the next level</h3>
+              <p className="text-gray-600 mb-5 fs-5 max-w-xl mx-auto xs-px-2">Join millions of professionals discovering opportunities and building meaningful connections on 24Jobs.</p>
+              <div className="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3">
+                <button className="btn-primary-linkedin px-6 py-3 fw-semibold">
+                  Join 24Jobs today <i className="bi bi-arrow-right ms-2"></i>
+                </button>
+                <a href="#" className="btn-outline-linkedin px-5 py-3 fw-semibold">
+                  Learn more about premium
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </Layout>
+  );
+}
