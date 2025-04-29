@@ -307,7 +307,7 @@ export default function Header24Jobs() {
       </div>
       
       {/* Add CSS directly in the component for simplicity, or move to a CSS file */}
-      <style jsx>{`
+      <style>{`
         .header-nav-item {
           display: flex;
           align-items: center;
