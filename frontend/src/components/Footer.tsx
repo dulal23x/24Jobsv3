@@ -56,7 +56,7 @@ export default function Footer() {
         </div>
         
         <div className="text-center mt-4 text-sm text-muted">
-          © 2025 Xubly Corporation. All rights reserved.
+          © 2025 24Jobs Corporation. All rights reserved.
         </div>
       </div>
     </footer>
