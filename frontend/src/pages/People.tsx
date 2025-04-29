@@ -551,7 +551,7 @@ export default function People() {
                                       </>
                                     ) : (
                                       <>
-                                        <FiPlus className="me-1" size={14} /> Connect
+                                    <FiPlus className="me-1" size={14} /> Connect
                                       </>
                                     )}
                                   </button>
@@ -570,7 +570,7 @@ export default function People() {
                                       </>
                                     ) : (
                                       <>
-                                        <FiUnlock className="me-1" size={14} /> Unlock
+                                    <FiUnlock className="me-1" size={14} /> Unlock
                                       </>
                                     )}
                                   </button>
