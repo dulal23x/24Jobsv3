@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getPeople, unlockContact, createConnection } from '../lib/api';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { 
   FiSearch, FiMail, FiPhone, FiUser, FiCheck, FiLock, FiUnlock, 
   FiMessageSquare, FiMapPin, FiFilter, FiBriefcase, FiChevronDown,
@@ -67,6 +64,13 @@ export default function People() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [sortOption, setSortOption] = useState('relevance');
+  const [filters, setFilters] = useState({
+    connections: [] as string[],
+    industries: [] as string[],
+    companySize: [] as string[]
+  });
   const queryClient = useQueryClient();
   
   // Debounce search input
@@ -80,8 +84,17 @@ export default function People() {
   
   // Fetch people data
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['people', { page, pageSize, keyword: debouncedQuery }],
-    queryFn: () => getPeople({ page, pageSize, keyword: debouncedQuery }),
+    queryKey: ['people', { page, pageSize, keyword: debouncedQuery, location: selectedLocation, sort: sortOption, ...filters }],
+    queryFn: () => getPeople({ 
+      page, 
+      pageSize, 
+      keyword: debouncedQuery,
+      sortBy: sortOption,
+      location: selectedLocation,
+      connections: filters.connections.length > 0 ? filters.connections : undefined,
+      industries: filters.industries.length > 0 ? filters.industries : undefined,
+      companySize: filters.companySize.length > 0 ? filters.companySize : undefined,
+    }),
   });
   
   // Mutation for unlocking contact info
@@ -89,6 +102,10 @@ export default function People() {
     mutationFn: (personId: number | string) => unlockContact(Number(personId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['people'] });
+    },
+    onError: (error) => {
+      console.error('Error unlocking contact:', error);
+      // In a real application, you would show a toast or notification here
     }
   });
   
@@ -97,8 +114,58 @@ export default function People() {
     mutationFn: (personId: number | string) => createConnection(Number(personId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['people'] });
+    },
+    onError: (error) => {
+      console.error('Error creating connection:', error);
+      // In a real application, you would show a toast or notification here
     }
   });
+  
+  // Handle sort change
+  const handleSortChange = (option: string) => {
+    setSortOption(option);
+    setPage(1); // Reset to first page on sort change
+    refetch();
+  };
+  
+  // Handler for filter changes
+  const handleFilterChange = (category: string, value: string, checked: boolean) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (category === 'connections') {
+        if (checked) {
+          newFilters.connections = [...newFilters.connections, value];
+        } else {
+          newFilters.connections = newFilters.connections.filter(item => item !== value);
+        }
+      } else if (category === 'industries') {
+        if (checked) {
+          newFilters.industries = [...newFilters.industries, value];
+        } else {
+          newFilters.industries = newFilters.industries.filter(item => item !== value);
+        }
+      } else if (category === 'companySize') {
+        if (checked) {
+          newFilters.companySize = [...newFilters.companySize, value];
+        } else {
+          newFilters.companySize = newFilters.companySize.filter(item => item !== value);
+        }
+      }
+      return newFilters;
+    });
+    // Reset to first page when filters change
+    setPage(1);
+  };
+
+  // Apply filters handler
+  const applyFilters = () => {
+    refetch();
+  };
+  
+  // Handle location change
+  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLocation(e.target.value);
+  };
   
   // Handle pagination
   const handlePageChange = (newPage: number) => {
@@ -140,13 +207,25 @@ export default function People() {
             <div className="mb-4">
               <h6 className="fw-semibold small text-uppercase mb-2">Connection</h6>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterConnections" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterConnections" 
+                  checked={filters.connections.includes('1st')}
+                  onChange={(e) => handleFilterChange('connections', '1st', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterConnections">
                   1st connections
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterNetworkConnections" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterNetworkConnections" 
+                  checked={filters.connections.includes('2nd')}
+                  onChange={(e) => handleFilterChange('connections', '2nd', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterNetworkConnections">
                   2nd connections
                 </label>
@@ -157,31 +236,61 @@ export default function People() {
             <div className="mb-4">
               <h6 className="fw-semibold small text-uppercase mb-2">Industry</h6>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterTechnology" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterTechnology" 
+                  checked={filters.industries.includes('Technology')}
+                  onChange={(e) => handleFilterChange('industries', 'Technology', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterTechnology">
                   Technology
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterFinance" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterFinance" 
+                  checked={filters.industries.includes('Finance')}
+                  onChange={(e) => handleFilterChange('industries', 'Finance', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterFinance">
                   Finance
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterHealthcare" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterHealthcare" 
+                  checked={filters.industries.includes('Healthcare')}
+                  onChange={(e) => handleFilterChange('industries', 'Healthcare', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterHealthcare">
                   Healthcare
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterEducation" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterEducation" 
+                  checked={filters.industries.includes('Education')}
+                  onChange={(e) => handleFilterChange('industries', 'Education', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterEducation">
                   Education
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterMarketing" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterMarketing" 
+                  checked={filters.industries.includes('Marketing')}
+                  onChange={(e) => handleFilterChange('industries', 'Marketing', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterMarketing">
                   Marketing
                 </label>
@@ -192,32 +301,56 @@ export default function People() {
             <div className="mb-4">
               <h6 className="fw-semibold small text-uppercase mb-2">Company Size</h6>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterSmallBusiness" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterSmallBusiness" 
+                  checked={filters.companySize.includes('1-10')}
+                  onChange={(e) => handleFilterChange('companySize', '1-10', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterSmallBusiness">
                   1-10 employees
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterMediumBusiness" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterMediumBusiness" 
+                  checked={filters.companySize.includes('11-50')}
+                  onChange={(e) => handleFilterChange('companySize', '11-50', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterMediumBusiness">
                   11-50 employees
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterLargeBusiness" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterLargeBusiness" 
+                  checked={filters.companySize.includes('51-200')}
+                  onChange={(e) => handleFilterChange('companySize', '51-200', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterLargeBusiness">
                   51-200 employees
                 </label>
               </div>
               <div className="form-check mb-2">
-                <input className="form-check-input" type="checkbox" id="filterEnterprise" />
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="filterEnterprise" 
+                  checked={filters.companySize.includes('201+')}
+                  onChange={(e) => handleFilterChange('companySize', '201+', e.target.checked)}
+                />
                 <label className="form-check-label" htmlFor="filterEnterprise">
                   201+ employees
                 </label>
               </div>
             </div>
             
-            <button className="btn btn-outline-primary w-100">Apply Filters</button>
+            <button className="btn btn-outline-primary w-100" onClick={applyFilters}>Apply Filters</button>
           </div>
         </div>
         
@@ -257,13 +390,17 @@ export default function People() {
                 </div>
               </div>
               <div className="col-md-3">
-                <select className="form-select shadow-none">
-                  <option>All locations</option>
-                  <option>San Francisco, CA</option>
-                  <option>New York, NY</option>
-                  <option>Austin, TX</option>
-                  <option>Seattle, WA</option>
-                  <option>Chicago, IL</option>
+                <select 
+                  className="form-select shadow-none"
+                  value={selectedLocation}
+                  onChange={handleLocationChange}
+                >
+                  <option value="">All locations</option>
+                  <option value="San Francisco, CA">San Francisco, CA</option>
+                  <option value="New York, NY">New York, NY</option>
+                  <option value="Austin, TX">Austin, TX</option>
+                  <option value="Seattle, WA">Seattle, WA</option>
+                  <option value="Chicago, IL">Chicago, IL</option>
                 </select>
               </div>
               <div className="col-md-2">
@@ -291,12 +428,12 @@ export default function People() {
               </div>
               <div className="dropdown">
                 <button className="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                  <FiSliders className="me-1" /> Sort: Relevance
+                  <FiSliders className="me-1" /> Sort: {sortOption.charAt(0).toUpperCase() + sortOption.slice(1)}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="sortDropdown">
-                  <li><a className="dropdown-item" href="#">Relevance</a></li>
-                  <li><a className="dropdown-item" href="#">Name (A-Z)</a></li>
-                  <li><a className="dropdown-item" href="#">Recently Added</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('relevance')}>Relevance</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('name')}>Name (A-Z)</a></li>
+                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('recentlyAdded')}>Recently Added</a></li>
                 </ul>
               </div>
             </div>
@@ -405,8 +542,18 @@ export default function People() {
                                   <button 
                                     className="btn btn-outline-primary btn-sm flex-grow-1"
                                     onClick={() => handleConnect(person.id)}
+                                    disabled={connectMutation.isPending && connectMutation.variables === person.id}
                                   >
-                                    <FiPlus className="me-1" size={14} /> Connect
+                                    {connectMutation.isPending && connectMutation.variables === person.id ? (
+                                      <>
+                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Connecting...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <FiPlus className="me-1" size={14} /> Connect
+                                      </>
+                                    )}
                                   </button>
                                 )}
                                 
@@ -414,8 +561,18 @@ export default function People() {
                                   <button 
                                     className="btn btn-primary btn-sm flex-grow-1"
                                     onClick={() => handleUnlockContact(person.id)}
+                                    disabled={unlockMutation.isPending && unlockMutation.variables === person.id}
                                   >
-                                    <FiUnlock className="me-1" size={14} /> Unlock
+                                    {unlockMutation.isPending && unlockMutation.variables === person.id ? (
+                                      <>
+                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        Unlocking...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <FiUnlock className="me-1" size={14} /> Unlock
+                                      </>
+                                    )}
                                   </button>
                                 ) : (
                                   <button className="btn btn-outline-secondary btn-sm flex-grow-1">
@@ -450,10 +607,22 @@ export default function People() {
                           </a>
                         </li>
                         
-                        {Array.from({ length: Math.min(5, data.pagination.totalPages) }, (_, i) => {
-                          const pageNum = i + 1;
-                          return (
-                            <li key={i} className={`page-item ${pageNum === page ? 'active' : ''}`}>
+                        {(() => {
+                          const currentPage = page;
+                          const totalPages = data.pagination.totalPages;
+                          let startPage = Math.max(1, currentPage - 2);
+                          let endPage = Math.min(totalPages, startPage + 4);
+                          
+                          // Adjust start page if we're near the end
+                          if (endPage - startPage < 4 && startPage > 1) {
+                            startPage = Math.max(1, endPage - 4);
+                          }
+                          
+                          return Array.from(
+                            { length: endPage - startPage + 1 }, 
+                            (_, i) => startPage + i
+                          ).map(pageNum => (
+                            <li key={pageNum} className={`page-item ${pageNum === page ? 'active' : ''}`}>
                               <a 
                                 className="page-link" 
                                 href="#"
@@ -465,10 +634,10 @@ export default function People() {
                                 {pageNum}
                               </a>
                             </li>
-                          );
-                        })}
+                          ));
+                        })()}
                         
-                        <li className={`page-item ${!data.pagination.hasNextPage ? 'disabled' : ''}`}>
+                        <li className={`page-item ${page >= data.pagination.totalPages ? 'disabled' : ''}`}>
                           <a 
                             className="page-link" 
                             href="#" 
@@ -502,13 +671,25 @@ export default function People() {
           <div className="mb-4">
             <h6 className="fw-semibold small text-uppercase mb-2">Connection</h6>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterConnections" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterConnections" 
+                checked={filters.connections.includes('1st')}
+                onChange={(e) => handleFilterChange('connections', '1st', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterConnections">
                 1st connections
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterNetworkConnections" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterNetworkConnections" 
+                checked={filters.connections.includes('2nd')}
+                onChange={(e) => handleFilterChange('connections', '2nd', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterNetworkConnections">
                 2nd connections
               </label>
@@ -519,31 +700,61 @@ export default function People() {
           <div className="mb-4">
             <h6 className="fw-semibold small text-uppercase mb-2">Industry</h6>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterTechnology" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterTechnology" 
+                checked={filters.industries.includes('Technology')}
+                onChange={(e) => handleFilterChange('industries', 'Technology', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterTechnology">
                 Technology
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterFinance" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterFinance" 
+                checked={filters.industries.includes('Finance')}
+                onChange={(e) => handleFilterChange('industries', 'Finance', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterFinance">
                 Finance
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterHealthcare" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterHealthcare" 
+                checked={filters.industries.includes('Healthcare')}
+                onChange={(e) => handleFilterChange('industries', 'Healthcare', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterHealthcare">
                 Healthcare
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterEducation" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterEducation" 
+                checked={filters.industries.includes('Education')}
+                onChange={(e) => handleFilterChange('industries', 'Education', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterEducation">
                 Education
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterMarketing" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterMarketing" 
+                checked={filters.industries.includes('Marketing')}
+                onChange={(e) => handleFilterChange('industries', 'Marketing', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterMarketing">
                 Marketing
               </label>
@@ -554,32 +765,56 @@ export default function People() {
           <div className="mb-4">
             <h6 className="fw-semibold small text-uppercase mb-2">Company Size</h6>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterSmallBusiness" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterSmallBusiness" 
+                checked={filters.companySize.includes('1-10')}
+                onChange={(e) => handleFilterChange('companySize', '1-10', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterSmallBusiness">
                 1-10 employees
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterMediumBusiness" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterMediumBusiness" 
+                checked={filters.companySize.includes('11-50')}
+                onChange={(e) => handleFilterChange('companySize', '11-50', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterMediumBusiness">
                 11-50 employees
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterLargeBusiness" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterLargeBusiness" 
+                checked={filters.companySize.includes('51-200')}
+                onChange={(e) => handleFilterChange('companySize', '51-200', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterLargeBusiness">
                 51-200 employees
               </label>
             </div>
             <div className="form-check mb-2">
-              <input className="form-check-input" type="checkbox" id="mFilterEnterprise" />
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="mFilterEnterprise" 
+                checked={filters.companySize.includes('201+')}
+                onChange={(e) => handleFilterChange('companySize', '201+', e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="mFilterEnterprise">
                 201+ employees
               </label>
             </div>
           </div>
           
-          <button className="btn btn-primary w-100" data-bs-dismiss="offcanvas">Apply Filters</button>
+          <button className="btn btn-primary w-100" data-bs-dismiss="offcanvas" onClick={applyFilters}>Apply Filters</button>
         </div>
       </div>
     </div>
