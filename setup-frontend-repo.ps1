@@ -4,6 +4,17 @@ git init
 # Add the frontend files based on the gitignore patterns
 git add .
 
+# Check if there are any nested repositories and remove them from the index
+$nestedRepos = git ls-files --stage | Select-String "^160000"
+if ($nestedRepos) {
+    Write-Host "Found nested repositories. Removing them from the index..."
+    $nestedRepos | ForEach-Object {
+        $file = ($_ -split "\s+")[-1]
+        git rm --cached $file
+        Write-Host "Removed $file from git index"
+    }
+}
+
 # Initial commit with frontend files only
 git commit -m "Initial commit with frontend-only files"
 
