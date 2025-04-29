@@ -13,6 +13,7 @@ import Salary from "./pages/Salary";
 import Employer from "./pages/Employer";
 import Company from "./pages/Company";
 import NotFound from "./pages/not-found";
+import JobDescription from "./pages/JobDescription";
 
 function App() {
   useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
             <Route path="/salary" component={Salary} />
             <Route path="/employer" component={Employer} />
             <Route path="/company/:id" component={Company} />
+            <Route path="/job/:id" component={JobDescription} />
             <Route component={NotFound} />
           </Switch>
         </main>
