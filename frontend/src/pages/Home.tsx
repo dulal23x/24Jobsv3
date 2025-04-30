@@ -4,10 +4,11 @@ import { Link } from 'wouter';
 export default function Home() {
   return (
     <div className="homepage-container">
-      {/* Hero Section */}
+      {/* ================= Hero Section ================= */}
       <section className="hero-section py-md-5 py-4 bg-light">
         <div className="container">
           <div className="row align-items-center gy-4">
+            {/* বাম পাশে হেডলাইন, সাবহেড, বাটন, ইউজার এভাটার ও রেটিং */}
             <div className="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
               <div className="mb-3">
                 <span className="d-inline-flex align-items-center text-primary mb-2 fw-medium" style={{ fontSize: '1.1rem' }}>
@@ -54,19 +55,19 @@ export default function Home() {
               <div className="d-flex align-items-center justify-content-center justify-content-lg-start mb-4">
                 <div className="d-flex me-3">
                   <img 
-                    src="https://ui-avatars.com/api/?name=JD&background=random" 
+                    src="https://randomuser.me/api/portraits/women/31.jpg" 
                     alt="User avatar" 
                     className="rounded-circle border border-3 border-white shadow-sm"
                     style={{ width: '38px', height: '38px', marginRight: '-12px', objectFit: 'cover' }}
                   />
                   <img 
-                    src="https://ui-avatars.com/api/?name=MS&background=random" 
+                    src="https://randomuser.me/api/portraits/men/32.jpg" 
                     alt="User avatar" 
                     className="rounded-circle border border-3 border-white shadow-sm"
                     style={{ width: '38px', height: '38px', marginRight: '-12px', objectFit: 'cover' }}
                   />
                   <img 
-                    src="https://ui-avatars.com/api/?name=TK&background=random" 
+                    src="https://randomuser.me/api/portraits/women/33.jpg" 
                     alt="User avatar" 
                     className="rounded-circle border border-3 border-white shadow-sm"
                     style={{ width: '38px', height: '38px', objectFit: 'cover' }}
@@ -81,7 +82,8 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
+             {/* ডান পাশে হিরো ইমেজ, টেস্টিমোনিয়াল কার্ড ও ব্যাজ */}
             <div className="col-lg-6 position-relative">
               <div className="position-relative text-center">
                 <img 
@@ -90,7 +92,6 @@ export default function Home() {
                   className="img-fluid rounded-4 shadow-lg"
                   style={{ maxHeight: '500px', objectFit: 'cover', width: '100%' }}
                 />
-                
                 <div className="position-absolute bg-white shadow-lg rounded-3 p-3 p-md-4 start-0 end-0 mx-auto" 
                      style={{ 
                        maxWidth: '340px', 
@@ -108,7 +109,8 @@ export default function Home() {
                      }}
                 >
                   <div className="d-flex align-items-start gap-3">
-                    <div className="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '45px', height: '45px', fontSize: '16px' }}>JJ</div>
+                    <img src='https://randomuser.me/api/portraits/women/33.jpg' alt=''
+                    className='img-fluid rounded-full shadow-lg'  style={{ width: '45px', height: '45px' , objectFit:"cover" }}/>
                     <div className="overflow-hidden">
                       <div className="text-warning small mb-1 fs-6">★★★★★</div>
                       <p className="mb-1 fw-medium" style={{ fontSize: '0.95rem' }}>
@@ -120,7 +122,6 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                
                 <div className="position-absolute badge bg-success text-white px-3 py-2 rounded-pill shadow-sm" 
                      style={{ 
                        left: '20px', 
@@ -148,7 +149,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Professionals Choose Section */}
+      {/* ============= Why Professionals Choose Section ============= */}
       <section className="py-5 my-4">
         <div className="container">
           <div className="text-center mb-5 pb-3">
@@ -159,6 +160,7 @@ export default function Home() {
           </div>
           
           <div className="row g-4">
+            {/* তিনটি ফিচার কার্ড: Career Opportunities, Connections, Knowledge Sharing */}
             {/* Card 1 */}
             <div className="col-md-4">
               <div className="card h-100 border-0 shadow-sm rounded-4 transition-shadow"
@@ -249,57 +251,100 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-5 bg-gradient-primary-light">
+      {/* ================= CTA Section ================= */}
+      <section className="cta-section-home py-5" style={{ background: 'linear-gradient(135deg, #f3fafd 0%, #f3fafd 100%)' }}>
         <div className="container text-center py-4">
-          <h2 className="fw-bold mb-3 display-5">Ready to <span className="text-primary">advance your career</span>?</h2>
-          <p className="lead text-muted mb-5 mx-auto" style={{ maxWidth: '700px', fontSize: '1.2rem' }}>
+          {/* CTA Top Button */}
+          <div className="d-flex justify-content-center mb-4">
+            <Link href="/join">
+              <button
+                className="btn btn-light px-4 py-2 rounded-pill shadow-sm fw-semibold d-flex align-items-center gap-2"
+                style={{
+                  fontSize: '1.15rem',
+                  boxShadow: '0 2px 8px 0 rgba(44, 62, 80, 0.08)',
+                  border: 'none',
+                  color: '#2563eb',
+                }}
+              >
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="#2563eb" strokeWidth="2" fill="none"/>
+                  <path d="M12 8v4l2 2" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Join Today
+              </button>
+            </Link>
+          </div>
+          <h2 className="fw-bold mb-3" style={{ fontWeight: 800, fontSize: '32px' }}>
+            Ready to{' '}
+            <span style={{
+              background: 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 900,
+            }}>
+              advance your career
+            </span>
+            ?
+          </h2>
+          <p className="lead mb-5 mx-auto" style={{ maxWidth: '700px', color: '#5a6a7a', fontSize: '1.35rem', fontWeight: 500 }}>
             Join millions of professionals building connections, sharing insights, and growing their careers on 24Jobs. Take the next step toward your professional success.
           </p>
-          
-          <div className="row justify-content-center mb-5">
-            <div className="col-md-10 col-lg-8">
-              <div className="row g-4 text-center justify-content-center">
-                <div className="col-6 col-sm-4">
-                  <div className="py-3">
-                    <div className="display-6 fw-bold text-primary mb-1">10M+</div>
-                    <div className="text-muted fs-5">Active Users</div>
-                  </div>
+          <div className="d-flex flex-wrap justify-content-center gap-4 mb-5">
+            {/* Card 1 */}
+            <div style={{ minWidth: 120 }}>
+              <div className="bg-white  d-flex flex-row gap-1 align-items-center py-4 px-4" style={{ boxShadow: '0 4px 24px 0 rgba(44, 62, 80, 0.08)' }}>
+                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" className="mb-2">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" fill="#2563eb"/>
+                </svg>
+                <div>
+                  <div className="fw-bold" style={{ fontSize: '2rem', color: '#2563eb' }}>10M+</div>
+                  <div className="fw-semibold" style={{ color: '#222', fontSize: '1.1rem' }}>Active Users</div>
                 </div>
-                <div className="col-6 col-sm-4">
-                  <div className="py-3">
-                    <div className="display-6 fw-bold text-primary mb-1">25K+</div>
-                    <div className="text-muted fs-5">Companies</div>
-                  </div>
+              </div>
+            </div>
+            {/* Card 2 */}
+            <div style={{ minWidth: 120 }}>
+              <div className="bg-white  d-flex flex-row gap-1 align-items-center py-4 px-4" style={{ boxShadow: '0 4px 24px 0 rgba(44, 62, 80, 0.08)' }}>
+                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" className="mb-2">
+                  <rect x="4" y="7" width="16" height="13" rx="2" fill="#22c55e"/>
+                  <rect x="7" y="3" width="10" height="4" rx="2" fill="#22c55e"/>
+                </svg>
+                <div>
+                  <div className="fw-bold" style={{ fontSize: '2rem', color: '#22c55e' }}>25K+</div>
+                  <div className="fw-semibold" style={{ color: '#222', fontSize: '1.1rem' }}>Companies</div>
                 </div>
-                <div className="col-6 col-sm-4 mt-3 mt-sm-0">
-                  <div className="py-3">
-                    <div className="display-6 fw-bold text-primary mb-1">5K+</div>
-                    <div className="text-muted fs-5">Daily Jobs</div>
-                  </div>
+              </div>
+            </div>
+            {/* Card 3 */}
+            <div style={{ minWidth: 120 }}>
+              <div className="bg-white  d-flex flex-row gap-1 align-items-center py-4 px-4" style={{ boxShadow: '0 4px 24px 0 rgba(44, 62, 80, 0.08)' }}>
+                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" className="mb-2">
+                  <rect x="2" y="7" width="20" height="13" rx="2" fill="#8b5cf6"/>
+                  <rect x="7" y="3" width="10" height="4" rx="2" fill="#8b5cf6"/>
+                </svg>
+                <div>
+                  <div className="fw-bold" style={{ fontSize: '2rem', color: '#8b5cf6' }}>5K+</div>
+                  <div className="fw-semibold" style={{ color: '#222', fontSize: '1.1rem' }}>Daily Jobs</div>
                 </div>
               </div>
             </div>
           </div>
-          
-          <Link href="/join">
-            <button className="btn btn-primary btn-lg px-5 py-3 rounded-pill fs-5 transition-all shadow"
-                    style={{ 
-                      minWidth: '250px', 
-                      transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = '0 .5rem 1rem rgba(0,0,0,.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = '';
-                    }}
-            >
-              Join 24Jobs today
-            </button>
-          </Link>
+          <div className="d-flex justify-content-center">
+            <Link href="/join">
+              <button
+                className="btn btn-primary btn-lg px-5 py-3 rounded-4 fw-bold d-flex align-items-center gap-2 shadow"
+                style={{ fontSize: '1.25rem', boxShadow: '0 4px 24px 0 rgba(44, 62, 80, 0.10)' }}
+              >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" fill="#fff"/>
+                </svg>
+                Join 24Jobs today
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

@@ -14,6 +14,7 @@ import Employer from "./pages/Employer";
 import Company from "./pages/Company";
 import NotFound from "./pages/not-found";
 import JobDescription from "./pages/JobDescription";
+import Registration from "./pages/Registration";
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
             <Route path="/employer" component={Employer} />
             <Route path="/company/:id" component={Company} />
             <Route path="/job/:id" component={JobDescription} />
+            <Route path="/join" component={Registration} />
             <Route component={NotFound} />
           </Switch>
         </main>
