@@ -16,6 +16,8 @@ import {
   Search, MapPin, Download, Mail, Phone, Briefcase, Building,
   SlidersHorizontal, Star, X, ChevronDown, ChevronLeft, Filter,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext'; // Import your auth hook
+import { toast } from 'sonner'; // Example: using sonner for notifications
 
 // Mock data for demonstration purposes
 const MOCK_PEOPLE = [
@@ -255,6 +257,8 @@ export default function People() {
   const [followedCompanies, setFollowedCompanies] = useState<Set<number>>(new Set());
   const [showCompanyInfo, setShowCompanyInfo] = useState<Record<number, boolean>>({});
 
+  const { user, updateLocalCredits } = useAuth(); // Get user data and update function from context
+
   // --- API Fetching State (Example with react-query - install @tanstack/react-query) ---
   // const { data: apiData, isLoading, error, refetch } = useQuery({
   //   queryKey: ['searchResults', activeTab, filters], // Key includes filters to trigger refetch
@@ -340,46 +344,84 @@ export default function People() {
   };
 
 
-  // --- UNLOCKING LOGIC ---
+  // --- UNLOCKING LOGIC (Updated) ---
   const handleUnlockContact = async (personId: number) => {
-      // Prevent unlocking if already shown
+      // 1. Prevent unlocking if already shown
       if (showContactInfo[personId]) return;
 
-      console.log(`Attempting to unlock contact for person ID: ${personId}`);
-      // **API Call Placeholder**
+      // 2. Check user login status and credits (Frontend check for immediate feedback)
+      if (!user) {
+          toast.error("Please log in to unlock contacts."); // Or redirect to login
+          return;
+      }
+      if (user.credits_remaining <= 0) {
+          toast.error("You have no credits remaining.", {
+              description: "Upgrade your plan or wait for the monthly refresh.",
+              // Add action button? e.g., onClick: () => navigate('/pricing')
+          });
+          return;
+      }
+
+      console.log(`Attempting to unlock contact for person ID: ${personId} (User credits: ${user.credits_remaining})`);
+      
+      // **API Call to Backend**
       try {
-          // const response = await fetch(`/api/people/${personId}/unlock/`, { method: 'POST' }); // Your unlock endpoint
-          // if (!response.ok) {
-          //   // Handle errors (e.g., insufficient credits, not found, server error)
-          //   const errorData = await response.json();
-          //   console.error("Unlock failed:", errorData.detail || "Unknown error");
-          //   alert(`Failed to unlock: ${errorData.detail || 'Please try again.'}`);
-          //   return;
-          // }
-          // const unlockedData = await response.json(); // Get updated person data with revealed info
+          const response = await fetch(`/api/people/${personId}/unlock/`, { 
+              method: 'POST',
+              // Add headers for authentication (e.g., Authorization: Bearer <token>)
+              headers: {
+                  'Content-Type': 'application/json',
+                  // 'Authorization': `Bearer ${your_auth_token}`, // Include your auth token!
+                  // Add CSRF token header if needed for Django POST requests
+              }
+          });
 
-          // --- MOCK UNLOCK SUCCESS ---
-          await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
-          const unlockedData = MOCK_PEOPLE.find(p => p.id === personId);
-          if (!unlockedData) throw new Error("Person not found in mock data");
-          // --- END MOCK ---
+          if (response.ok) {
+              const unlockedData = await response.json(); // Get updated person data
 
+              // --- SUCCESS ---
+              // a. Update the specific person in the results list
+              setPeopleResults(prevResults =>
+                  prevResults.map(p =>
+                      p.id === personId
+                          ? { 
+                              ...p, 
+                              email: unlockedData.email ? { ...p.email, full: unlockedData.email } : p.email, 
+                              phone: unlockedData.phone ? { ...p.phone, full: unlockedData.phone } : p.phone
+                            } // Update with real data safely
+                          : p
+                  )
+              );
 
-          // Update the specific person in the results list
-          setPeopleResults(prevResults =>
-              prevResults.map(p =>
-                  p.id === personId
-                      ? { ...p, email: unlockedData.email, phone: unlockedData.phone } // Update with real data
-                      : p
-              )
-          );
+              // b. Set the unlocked status for this person's UI
+              setShowContactInfo(prev => ({ ...prev, [personId]: true }));
+              
+              // c. Decrement credits in the frontend state for immediate UI update
+              updateLocalCredits(user.credits_remaining - 1); 
 
-          // Set the unlocked status for this person
-          setShowContactInfo(prev => ({ ...prev, [personId]: true }));
+              toast.success("Contact unlocked successfully!");
+
+          } else {
+              // --- FAILURE ---
+              const errorData = await response.json();
+              if (response.status === 402) { // Payment Required (Insufficient Credits)
+                  toast.error("Insufficient credits.", {
+                      description: errorData.detail || "Upgrade your plan or wait for the monthly refresh.",
+                  });
+              } else {
+                  // Handle other errors (401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error)
+                  console.error("Unlock failed:", response.status, errorData);
+                  toast.error("Failed to unlock contact.", {
+                      description: errorData.detail || "Please try again later.",
+                  });
+              }
+          }
 
       } catch (error) {
-          console.error("Error during contact unlock:", error);
-          alert("An error occurred while trying to unlock contact info.");
+          console.error("Error during contact unlock API call:", error);
+          toast.error("An error occurred.", {
+              description: "Could not connect to the server. Please check your connection and try again.",
+          });
       }
   };
 
@@ -636,12 +678,22 @@ export default function People() {
                           {/* Actions */}
                                   <div className="flex-shrink-0 ml-2">
                                       <Button
-                                          size="sm" variant={showContactInfo[person.id] ? "outline" : "default"}
-                                          className={`h-8 text-xs whitespace-nowrap px-3 shadow-sm transition-all duration-150 ${showContactInfo[person.id] ? 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                                          size="sm" 
+                                          variant={showContactInfo[person.id] ? "outline" : "default"}
+                                          className={`h-8 text-xs whitespace-nowrap px-3 shadow-sm transition-all duration-150 ${
+                                              showContactInfo[person.id] 
+                                                  ? 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100 cursor-default' 
+                                                  : (user && user.credits_remaining > 0) 
+                                                      ? 'bg-blue-600 hover:bg-blue-700 text-white' // Can unlock
+                                                      : 'bg-gray-400 text-gray-700 cursor-not-allowed' // Cannot unlock (no credits or not logged in)
+                                          }`}
                                           onClick={() => handleUnlockContact(person.id)}
-                                          disabled={showContactInfo[person.id]} // Disable if already unlocked/shown
+                                          disabled={showContactInfo[person.id] || !user || user.credits_remaining <= 0} // Disable if unlocked OR no user OR no credits
                                       >
-                                          {showContactInfo[person.id] ? 'Unlocked' : 'Unlock Contact'}
+                                          {showContactInfo[person.id] 
+                                              ? 'Unlocked' 
+                                              : `Unlock Contact ${user?.user_type === 'free' ? '(1 Credit)' : ''}` // Show credit cost for free users?
+                                          } 
                                       </Button>
                                       {/* Add Connect Button Here if needed */}
                           </div>
