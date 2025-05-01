@@ -1,3 +1,13 @@
+Search & filter Readme File-
+
+let's break down how to transform the provided RocketReach HTML into a functional filter sidebar for your 24Jobs site using React, TypeScript, and Shadcn/ui components. We'll then cover how the frontend interacts with the backend and how to implement the backend filtering.
+
+**Step 1: Basic Structure and Styling (`People.tsx`)**
+
+First, we'll create the main layout structure with the sidebar and content area, incorporating the People/Companies tabs and the collapse functionality.
+
+```typescript:frontend/src/pages/People.tsx
+// --- Imports ---
 import React, { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Input } from '@/components/ui/input';
@@ -10,220 +20,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { 
+import { ScrollArea } from "@/components/ui/scroll-area"; // For scrollable sidebar
+import { cn } from "@/lib/utils"; // Utility for conditional classes (install via shadcn)
+import {
   Search, MapPin, Download, Mail, Phone, Briefcase, Building,
-  SlidersHorizontal, Star, X, ChevronDown, ChevronLeft, Filter,
+  SlidersHorizontal, Star, X, ChevronDown, ChevronLeft, Filter, // Added Filter icon
 } from 'lucide-react';
 
-// Mock data for demonstration purposes
-const MOCK_PEOPLE = [
-  {
-    id: 1,
-    firstName: "John",
-    lastName: "Lewis",
-    position: "Chief Marketing Officer",
-    company: "Acme Inc",
-    location: "New York, NY, USA",
-    email: { hidden: "@johnlewis.co.uk", full: "john@johnlewis.co.uk" },
-    phone: { hidden: "077-646-XXXX", full: "077-646-8822" },
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    connections: 320,
-    social: {
-      linkedin: "johnlewis",
-      twitter: "johnlewis"
-    }
-  },
-  {
-    id: 2,
-    firstName: "Sarah",
-    lastName: "Johnson",
-    position: "Software Engineer",
-    company: "Tech Solutions",
-    location: "San Francisco, CA, USA",
-    email: { hidden: "@gmail.com", full: "sarahjohnson@gmail.com" },
-    phone: { hidden: "415-555-XXXX", full: "415-555-9876" },
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-    connections: 245,
-    social: {
-      linkedin: "sarahjohnson",
-      twitter: "sjohnson"
-    }
-  },
-  {
-    id: 3,
-    firstName: "Michael",
-    lastName: "Chen",
-    position: "Product Manager",
-    company: "Innovate Labs",
-    location: "Austin, TX, USA",
-    email: { hidden: "@innovatelabs.com", full: "mchen@innovatelabs.com" },
-    phone: { hidden: "512-333-XXXX", full: "512-333-7654" },
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    connections: 189,
-    social: {
-      linkedin: "michaelchen",
-      twitter: "mikechen"
-    }
-  },
-  {
-    id: 4,
-    firstName: "Emma",
-    lastName: "Garcia",
-    position: "UX Designer",
-    company: "Creative Design Co",
-    location: "Chicago, IL, USA",
-    email: { hidden: "@creativedesign.co", full: "emma@creativedesign.co" },
-    phone: { hidden: "312-444-XXXX", full: "312-444-5432" },
-    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-    connections: 276,
-    social: {
-      linkedin: "emmagarcia",
-      twitter: "designemma"
-    }
-  },
-  {
-    id: 5,
-    firstName: "David",
-    lastName: "Smith",
-    position: "Sales Director",
-    company: "Global Sales Inc",
-    location: "London, UK",
-    email: { hidden: "@globalsales.com", full: "dsmith@globalsales.com" },
-    phone: { hidden: "020-7946-XXXX", full: "020-7946-3210" },
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    connections: 412,
-    social: {
-      linkedin: "davidsmith",
-      twitter: "dsmith"
-    }
-  },
-];
-
-// Mock data for companies
-const MOCK_COMPANIES = [
-  {
-    id: 1,
-    name: "Acme Inc",
-    industry: "Technology",
-    size: "500-1000 employees",
-    location: "New York, NY, USA",
-    founded: 2005,
-    revenue: "$50M-100M",
-    website: "acmeinc.com",
-    description: "Leading provider of innovative technology solutions",
-    logo: "https://ui-avatars.com/api/?name=Acme+Inc&background=0062E6&color=fff&size=70",
-    keyPeople: ["John Lewis", "Maria Rodriguez"],
-    contactInfo: {
-      email: { hidden: "@acmeinc.com", full: "contact@acmeinc.com" },
-      phone: { hidden: "212-555-XXXX", full: "212-555-1234" }
-    }
-  },
-  {
-    id: 2,
-    name: "Tech Solutions",
-    industry: "Software Development",
-    size: "100-500 employees",
-    location: "San Francisco, CA, USA",
-    founded: 2012,
-    revenue: "$10M-50M",
-    website: "techsolutions.com",
-    description: "Custom enterprise software development and consulting",
-    logo: "https://ui-avatars.com/api/?name=Tech+Solutions&background=4CAF50&color=fff&size=70",
-    keyPeople: ["Sarah Johnson", "Alex Kim"],
-    contactInfo: {
-      email: { hidden: "@techsolutions.com", full: "info@techsolutions.com" },
-      phone: { hidden: "415-555-XXXX", full: "415-555-9876" }
-    }
-  },
-  {
-    id: 3,
-    name: "Innovate Labs",
-    industry: "Research & Development",
-    size: "50-100 employees",
-    location: "Austin, TX, USA",
-    founded: 2015,
-    revenue: "$5M-10M",
-    website: "innovatelabs.com",
-    description: "Cutting-edge research in AI and machine learning applications",
-    logo: "https://ui-avatars.com/api/?name=Innovate+Labs&background=FF5722&color=fff&size=70",
-    keyPeople: ["Michael Chen", "Lisa Wong"],
-    contactInfo: {
-      email: { hidden: "@innovatelabs.com", full: "hello@innovatelabs.com" },
-      phone: { hidden: "512-333-XXXX", full: "512-333-7654" }
-    }
-  },
-  {
-    id: 4,
-    name: "Creative Design Co",
-    industry: "Design Services",
-    size: "10-50 employees",
-    location: "Chicago, IL, USA",
-    founded: 2018,
-    revenue: "$1M-5M",
-    website: "creativedesign.co",
-    description: "Award-winning UI/UX design studio for digital products",
-    logo: "https://ui-avatars.com/api/?name=Creative+Design+Co&background=9C27B0&color=fff&size=70",
-    keyPeople: ["Emma Garcia", "James Wilson"],
-    contactInfo: {
-      email: { hidden: "@creativedesign.co", full: "design@creativedesign.co" },
-      phone: { hidden: "312-444-XXXX", full: "312-444-5432" }
-    }
-  },
-  {
-    id: 5,
-    name: "Global Sales Inc",
-    industry: "Business Services",
-    size: "1000+ employees",
-    location: "London, UK",
-    founded: 1998,
-    revenue: "$100M-500M",
-    website: "globalsales.com",
-    description: "International sales consulting and business development",
-    logo: "https://ui-avatars.com/api/?name=Global+Sales+Inc&background=F44336&color=fff&size=70",
-    keyPeople: ["David Smith", "Claire Bennett"],
-    contactInfo: {
-      email: { hidden: "@globalsales.com", full: "sales@globalsales.com" },
-      phone: { hidden: "020-7946-XXXX", full: "020-7946-3210" }
-    }
-  },
-];
-
-interface Person {
-  id: number;
-  firstName: string;
-  lastName: string;
-  position: string;
-  company: string;
-  location: string;
-  email: { hidden: string; full: string };
-  phone: { hidden: string; full: string };
-  avatar: string;
-  connections: number;
-  social: {
-    linkedin: string;
-    twitter: string;
-  };
-}
-
-interface Company {
-  id: number;
-  name: string;
-  industry: string;
-  size: string;
-  location: string;
-  founded: number;
-  revenue: string;
-  website: string;
-  description: string;
-  logo: string;
-  keyPeople: string[];
-  contactInfo: {
-    email: { hidden: string; full: string };
-    phone: { hidden: string; full: string };
-  };
-}
+// --- Interfaces & Mock Data (Keep as is or fetch from API later) ---
+// MOCK_PEOPLE, MOCK_COMPANIES, Person, Company interfaces...
 
 // --- Filter State Interface ---
 interface Filters {
@@ -237,6 +42,7 @@ interface Filters {
   // Add others: e.g., min_employees, max_employees, revenue_min, etc.
 }
 
+// --- Main Component ---
 export default function People() {
   const [activeTab, setActiveTab] = useState<'people' | 'companies'>('people');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -427,28 +233,28 @@ export default function People() {
           {/* Top Tabs */}
           <div className="flex mb-5 bg-white border border-gray-200 rounded-full w-auto sm:w-72 p-1 shadow-sm mx-auto sm:mx-0">
             {/* People/Companies Tab Buttons */}
-            <button 
+             <button
                className={`flex-1 py-2 px-4 rounded-full font-medium text-sm transition-all duration-200 ease-in-out ${
                  activeTab === "people"
                    ? "bg-blue-600 text-white shadow-md"
                    : "text-gray-600 hover:bg-gray-100"
                }`}
                onClick={() => setActiveTab("people")}
-            >
-              People
-            </button>
-            <button 
+             >
+               People
+             </button>
+             <button
                className={`flex-1 py-2 px-4 rounded-full font-medium text-sm transition-all duration-200 ease-in-out ${
                  activeTab === "companies"
                    ? "bg-blue-600 text-white shadow-md"
                    : "text-gray-600 hover:bg-gray-100"
                }`}
                onClick={() => setActiveTab("companies")}
-            >
-              Companies
-            </button>
+             >
+               Companies
+             </button>
           </div>
-          
+
           {/* Main Layout Grid */}
           <div className={cn(
             "grid grid-cols-1 gap-6 transition-[grid-template-columns] duration-300 ease-in-out",
@@ -481,7 +287,7 @@ export default function People() {
                      </Button>
                       {/* Add other collapsed icons if needed */}
                    </div>
-              </div>
+                 </div>
               ) : (
                  // -- Expanded Sidebar View --
                 <div className="flex flex-col h-full">
@@ -493,8 +299,8 @@ export default function People() {
                      <Button variant="ghost" size="icon" onClick={() => setSidebarCollapsed(true)} className="text-gray-500 hover:bg-gray-100 h-7 w-7">
                        <ChevronDown size={18} /> {/* Or ChevronLeft */}
                      </Button>
-              </div>
-                
+                  </div>
+
                   {/* Scrollable Area for Filters */}
                   <ScrollArea className="flex-grow pr-3 -mr-3 mb-4"> {/* Negative margin hides scrollbar slightly */}
                       {/* Saved Searches */}
@@ -503,7 +309,7 @@ export default function People() {
                           <AccordionTrigger className="py-1.5 px-1 text-sm font-medium text-gray-700 hover:no-underline hover:bg-gray-50 rounded data-[state=closed]:opacity-80">
                             <div className="flex items-center gap-2">
                               <Star size={16} className="text-yellow-500"/> Saved Searches
-            </div>
+                            </div>
                           </AccordionTrigger>
                           <AccordionContent className="pt-2 pb-0 px-1 text-xs text-gray-500">
                             You have no saved searches yet.
@@ -520,7 +326,7 @@ export default function People() {
                                Clear All
                              </Button>
                            )}
-              </div>
+                         </div>
                          {activeFilterBadges.length > 0 ? (
                            <div className="flex flex-wrap gap-1.5">
                              {activeFilterBadges.map((badge) => (
@@ -528,15 +334,15 @@ export default function People() {
                                  <span>{badge.value}</span>
                                  <button onClick={() => clearFilter(badge.key)} className="ml-1 text-blue-500 hover:text-blue-700 rounded-full hover:bg-blue-200 p-0.5">
                                    <X size={12} strokeWidth={2.5}/>
-                  </button>
-              </div>
+                                 </button>
+                               </div>
                              ))}
-              </div>
+                           </div>
                          ) : (
                            <p className="text-xs text-gray-400 italic">No filters applied.</p>
                          )}
-            </div>
-            
+                       </div>
+
                       {/* Filter Accordions */}
                       <Accordion type="multiple" defaultValue={currentFilterGroups.map(g => g.groupName)} className="w-full space-y-1">
                         {currentFilterGroups.map((group) => (
@@ -557,7 +363,7 @@ export default function People() {
                                        onChange={(e) => handleFilterChange(facet.key as keyof Filters, e.target.value)}
                                        className="h-8 text-sm" // Smaller input
                                    />
-              </div>
+                                 </div>
                               ))}
                             </AccordionContent>
                           </AccordionItem>
@@ -573,8 +379,8 @@ export default function People() {
                      <Button variant="outline" className="w-full h-9 text-sm">
                        <Star size={14} className="mr-1.5"/> Save Search
                      </Button>
-              </div>
-            </div>
+                   </div>
+                </div>
               )}
             </aside>
 
@@ -587,8 +393,8 @@ export default function People() {
                {/* Results Header (Count) */}
                <div className="mb-3 text-sm text-gray-600">
                  Showing <span className="font-semibold">{currentResults.length}</span> of <span className="font-semibold">{currentTotalCount}</span> {activeTab}
-            </div>
-            
+               </div>
+
                {/* --- People/Company Cards --- */}
                {activeTab === 'people' ? (
                    <div className="bg-white rounded-lg shadow-md border border-gray-200 divide-y divide-gray-200">
@@ -607,16 +413,16 @@ export default function People() {
                                           <p className="text-gray-600 truncate">{person.position}</p>
                                           <p className="text-gray-500 mt-0.5 flex items-center text-xs truncate">
                                               <MapPin size={12} className="mr-1 text-gray-400 flex-shrink-0" />
-                              {person.location}
-                            </p>
-              </div>
+                                              {person.location}
+                                          </p>
+                                      </div>
                                       {/* Col 2: Company */}
                                       <div className="min-w-0">
                                           <Link href={`/company/${person.company}`} className="text-blue-600 hover:underline font-medium truncate block">
-                              {person.company}
-                            </Link>
+                                              {person.company}
+                                          </Link>
                                           {/* Add Company Industry/Size if available */}
-            </div>
+                                      </div>
                                       {/* Col 3: Contact Info */}
                                       <div className="space-y-1">
                                           <div className="flex items-center text-xs">
@@ -624,16 +430,16 @@ export default function People() {
                                               <span className={`px-1.5 py-0.5 rounded ${showContactInfo[person.id] ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-500'} select-all truncate`}>
                                                   {showContactInfo[person.id] ? person.email.full : `••••${person.email.hidden}`}
                                               </span>
-          </div>
+                                          </div>
                                           <div className="flex items-center text-xs">
                                               <Phone size={13} className="text-gray-400 mr-1.5 flex-shrink-0" />
                                               <span className={`px-1.5 py-0.5 rounded ${showContactInfo[person.id] ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-500'} select-all truncate`}>
                                                   {showContactInfo[person.id] ? person.phone.full : person.phone.hidden}
-                                    </span>
-                                </div>
-                              </div>
-                            </div>
-                          {/* Actions */}
+                                              </span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                   {/* Actions */}
                                   <div className="flex-shrink-0 ml-2">
                                       <Button
                                           size="sm" variant={showContactInfo[person.id] ? "outline" : "default"}
@@ -644,13 +450,13 @@ export default function People() {
                                           {showContactInfo[person.id] ? 'Unlocked' : 'Unlock Contact'}
                                       </Button>
                                       {/* Add Connect Button Here if needed */}
-                          </div>
-                        </div>
+                                  </div>
+                              </div>
                            ))
                        ) : (
                            <p className="p-6 text-center text-gray-500 italic">No people found matching your criteria.</p>
                        )}
-                    </div>
+                   </div>
                ) : (
                    <div className="bg-white rounded-lg shadow-md border border-gray-200 divide-y divide-gray-200">
                        {/* Company Results Rendering (similar structure to people) */}
@@ -658,19 +464,19 @@ export default function People() {
                             companyResults.map((company) => (
                                 <div key={company.id} className="p-4 flex items-start gap-4 hover:bg-gray-50/70">
                                     {/* ... Company card content ... */}
-                  </div>
+                                </div>
                             ))
                         ) : (
                              <p className="p-6 text-center text-gray-500 italic">No companies found matching your criteria.</p>
                         )}
-                              </div>
+                   </div>
                )}
 
                {/* --- Pagination Placeholder --- */}
                 <div className="mt-6 flex justify-center">
                     {/* Add Pagination Component Here */}
                     <p className="text-xs text-gray-500">(Pagination Controls Go Here)</p>
-                  </div>
+                </div>
 
             </div> {/* End Main Content Column */}
           </div> {/* End Main Grid */}
@@ -680,3 +486,201 @@ export default function People() {
     </div>
   );
 }
+```
+
+**Step 2: Frontend Filtering & API Interaction**
+
+1.  **State Management:** We've set up the `filters` state object. Each input in the sidebar updates its corresponding key in this object via `handleFilterChange`.
+2.  **Triggering Search:**
+    *   **Manual:** The "Apply Filters" button calls `handleApplyFilters`. Inside this function (or triggered by it), you'd initiate the API call.
+    *   **Automatic (Debounced):** You could remove the "Apply Filters" button and have the `useEffect` hook that watches `debouncedFilters` trigger the API call (`refetch()` if using `react-query`). Debouncing prevents excessive API calls while typing.
+3.  **API Call:**
+    *   Use the `fetch` API or a library like `axios`.
+    *   Install and use `@tanstack/react-query` for robust data fetching, caching, and state management (recommended).
+    *   Construct the API endpoint URL (e.g., `http://localhost:8000/api/people/`).
+    *   Build the query string from the non-empty values in the `filters` state. Example:
+        ```javascript
+        const queryParams = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== '') {
+            queryParams.append(key, String(value)); // Ensure value is string
+          }
+        });
+        const queryString = queryParams.toString();
+        const apiUrl = `http://localhost:8000/api/people/?${queryString}`; // Replace base URL
+        ```
+    *   Make the GET request.
+4.  **Handling Response:**
+    *   Update `peopleResults`/`companyResults` state with the data from the API response.
+    *   Update `totalPeopleCount`/`totalCompanyCount` if your API provides pagination/count info.
+    *   Handle loading and error states (ideally managed by `react-query`).
+
+**Step 3: Backend Implementation Guide (Django/DRF)**
+
+1.  **Install `django-filter`:** This library simplifies filtering.
+    ```bash
+    pip install django-filter
+    # Add 'django_filters' to INSTALLED_APPS in settings.py
+    ```
+2.  **Create FilterSet:** Define filters corresponding to your frontend state keys and model fields.
+    ```python
+    # api/filters.py
+    import django_filters
+    from .models import Person, Company
+    from django.db.models import Q # For OR queries if needed
+
+    class PersonFilter(django_filters.FilterSet):
+        # Define filters matching frontend state keys (e.g., filters.name_query)
+        name_query = django_filters.CharFilter(method='filter_name_title_company', label='Search Name, Title, or Company')
+        location_query = django_filters.CharFilter(method='filter_location', label='Search Location')
+        title_query = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
+        company_query = django_filters.CharFilter(field_name='company_name', lookup_expr='icontains') # Or filter on related Company name
+        industry_query = django_filters.CharFilter(field_name='company__industry', lookup_expr='icontains') # Example: Filter on related company industry
+        skills_query = django_filters.CharFilter(method='filter_skills', label='Search Skills') # Requires custom method if skills are complex
+
+        class Meta:
+            model = Person
+            # List fields you want to allow direct filtering on (if not using custom methods)
+            fields = ['title_query', 'company_query', 'state', 'country'] # Add more as needed
+
+        def filter_name_title_company(self, queryset, name, value):
+            # Custom filter for combined name/title/company search
+            return queryset.filter(
+                Q(first_name__icontains=value) |
+                Q(last_name__icontains=value) |
+                Q(title__icontains=value) |
+                Q(company__name__icontains=value) | # Related company name
+                Q(company_name__icontains=value)    # Direct company name field
+            ).distinct() # Use distinct if Q objects might cause duplicates
+
+        def filter_location(self, queryset, name, value):
+            # Custom filter for combined city/state/country search
+            return queryset.filter(
+                Q(city__icontains=value) |
+                Q(state__icontains=value) |
+                Q(country__icontains=value)
+            ).distinct()
+
+        def filter_skills(self, queryset, name, value):
+            # Placeholder: Implement skill filtering based on how skills are stored
+            # e.g., if skills is a JSONField or ManyToManyField
+            # return queryset.filter(skills__contains=value) # Example
+            return queryset # Return unchanged queryset for now
+
+    class CompanyFilter(django_filters.FilterSet):
+        company_query = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+        location_query = django_filters.CharFilter(method='filter_location', label='Search Location')
+        industry_query = django_filters.CharFilter(field_name='industry', lookup_expr='icontains')
+        # Add filters for size, revenue etc.
+
+        class Meta:
+            model = Company
+            fields = ['company_query', 'industry_query'] # Add direct fields
+
+        def filter_location(self, queryset, name, value):
+            # Simple location filter for company
+             return queryset.filter(location__icontains=value)
+
+    ```
+3.  **Update ViewSet:** Integrate the `FilterSet`.
+    ```python
+    # api/views.py
+    from rest_framework import viewsets
+    from django_filters.rest_framework import DjangoFilterBackend
+    from .models import Person, Company
+    from .serializers import PersonResponseSerializer, CompanySerializer # Use PersonResponseSerializer for masked data
+    from .filters import PersonFilter, CompanyFilter
+    from rest_framework.decorators import action # For unlock action
+    from rest_framework.response import Response
+    from rest_framework import status
+    from rest_framework.permissions import IsAuthenticated # Require login for unlock
+
+    class PeopleViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly unless you add create/update
+        queryset = Person.objects.select_related('company').all() # Optimize query
+        serializer_class = PersonResponseSerializer # Use the response serializer
+        filter_backends = [DjangoFilterBackend]
+        filterset_class = PersonFilter
+        # Add pagination_class if needed
+
+        @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated]) # URL: /api/people/{id}/unlock/
+        def unlock(self, request, pk=None):
+            try:
+                person = self.get_object() # Gets person by pk
+            except Person.DoesNotExist:
+                 return Response({"detail": "Person not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            # --- Permission/Credit Check Logic ---
+            # Example: Check if user has credits
+            # if request.user.profile.credits < 1:
+            #     return Response({"detail": "Insufficient credits."}, status=status.HTTP_402_PAYMENT_REQUIRED)
+            # request.user.profile.credits -= 1
+            # request.user.profile.save()
+            # -------------------------------------
+
+            # Unlock the person (in a real app, you might not store this permanently
+            # on the Person model itself, maybe track unlocks per user)
+            # For this example, we'll just use the is_unlocked field if it exists
+            # or simply return the full data without modifying the model state permanently.
+
+            # Option 1: Mark person as unlocked (if field exists)
+            # person.is_unlocked = True # Make sure your serializer uses this
+            # person.save()
+
+            # Option 2: Just return the full data for this request
+            # We achieve this by simply *not* masking in the serializer when accessed via this endpoint
+            # Let's simulate returning full data by directly creating the dict:
+            unlocked_data = {
+                 'id': person.id,
+                 'first_name': person.first_name,
+                 'last_name': person.last_name,
+                 'title': person.title,
+                 'company': {'id': person.company.id, 'name': person.company.name} if person.company else {'id': None, 'name': person.company_name},
+                 'city': person.city,
+                 'state': person.state,
+                 'country': person.country,
+                 'email': person.email, # Return full email
+                 'phone': person.phone, # Return full phone
+                 'is_unlocked': True, # Indicate unlocked status in response
+                 'connect_status': person.connect_status
+            }
+
+
+            # You might want a specific serializer for the unlocked response
+            # serializer = PersonSerializer(person) # Use the basic serializer if it has all fields
+            # return Response(serializer.data)
+
+            return Response(unlocked_data, status=status.HTTP_200_OK)
+
+
+    class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
+        queryset = Company.objects.all()
+        serializer_class = CompanySerializer
+        filter_backends = [DjangoFilterBackend]
+        filterset_class = CompanyFilter
+        # Add pagination_class if needed
+
+    ```
+4.  **Update URLs:**
+    ```python
+    # api/urls.py
+    from django.urls import path, include
+    from rest_framework.routers import DefaultRouter
+    from .views import PeopleViewSet, CompanyViewSet
+
+    router = DefaultRouter()
+    router.register(r'people', PeopleViewSet)
+    router.register(r'companies', CompanyViewSet)
+
+    urlpatterns = [
+        path('', include(router.urls)),
+    ]
+    ```
+5.  **Serializer (`PersonResponseSerializer`):** Keep the logic for masking email/phone based on `is_unlocked` (or determine unlock status based on the request context if not storing `is_unlocked` directly). The `unlock` action above bypasses the default serializer logic slightly for demonstration, but ideally, the serializer handles the conditional logic.
+
+**Step 4: Frontend Unlock Implementation**
+
+1.  **Modify `handleUnlockContact`:** Make the actual `fetch` call to the `/api/people/{id}/unlock/` endpoint (using POST).
+2.  **Update State:** On a successful response (status 200), update the specific person's data within the `peopleResults` state using the data returned from the API (which should now contain the full email/phone). Also, update the `showContactInfo` state for that `personId` to `true`.
+3.  **Button State:** The "Unlock Contact" button's appearance and disabled state should react to the `showContactInfo[person.id]` status.
+
+This detailed approach provides a robust filtering system for 24Jobs, mirroring the capabilities shown in the RocketReach example while using modern React practices and connecting to a Django backend. Remember to install dependencies (`django-filter`, `@tanstack/react-query`, Shadcn UI components) and adapt the model fields, filter keys, and API endpoints to your exact project structure.

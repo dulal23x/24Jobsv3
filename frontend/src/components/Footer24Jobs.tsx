@@ -5,27 +5,6 @@ import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 export default function Footer24Jobs() {
   return (
     <footer className="py-0">
-      {/* Top section with newsletter */}
-      <div className="bg-[#f0f7ff] py-10">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6 mb-4 mb-lg-0">
-              <h4 className="fw-bold mb-2 text-gray-900">Stay connected with 24Jobs</h4>
-              <p className="text-gray-600">Get the latest jobs, insights, and networking opportunities.</p>
-            </div>
-            <div className="col-lg-6">
-              <div className="d-flex flex-column flex-md-row gap-2">
-                <input type="email" className="form-control dashboard-search py-2 px-3" placeholder="Enter your email address"/>
-                <button className="btn-primary-linkedin d-flex align-items-center">
-                  <i className="bi bi-envelope-check me-2"></i>
-                  Subscribe
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main footer content */}
       <div className="bg-white py-8 border-top border-bottom border-gray-200">
         <div className="container">
