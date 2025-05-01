@@ -346,82 +346,62 @@ export default function People() {
 
   // --- UNLOCKING LOGIC (Updated) ---
   const handleUnlockContact = async (personId: number) => {
-      // 1. Prevent unlocking if already shown
-      if (showContactInfo[personId]) return;
+      if (showContactInfo[personId]) return;  // Already unlocked
 
-      // 2. Check user login status and credits (Frontend check for immediate feedback)
       if (!user) {
-          toast.error("Please log in to unlock contacts."); // Or redirect to login
+          toast.error("Please log in to unlock contacts.");
           return;
       }
       if (user.credits_remaining <= 0) {
-          toast.error("You have no credits remaining.", {
-              description: "Upgrade your plan or wait for the monthly refresh.",
-              // Add action button? e.g., onClick: () => navigate('/pricing')
-          });
+          toast.error("You have no credits remaining.");
           return;
       }
 
-      console.log(`Attempting to unlock contact for person ID: ${personId} (User credits: ${user.credits_remaining})`);
-      
-      // **API Call to Backend**
+      console.log(`Attempting to unlock contact for person ID: ${personId}`);
+
+      // DEV MODE: Mock the API response for testing
+      if (process.env.NODE_ENV === 'development') {
+          // Simulate a successful response with mock data
+          const mockUnlockedData = {
+              email: { full: "mock@example.com" },  // Replace with actual mock based on your data
+              phone: { full: "123-456-7890" },
+          };
+
+          // Update state as if the API succeeded
+          setPeopleResults(prevResults =>
+              prevResults.map(p =>
+                  p.id === personId ? { ...p, email: mockUnlockedData.email, phone: mockUnlockedData.phone } : p
+              )
+          );
+          setShowContactInfo(prev => ({ ...prev, [personId]: true }));
+          updateLocalCredits(user.credits_remaining - 1);  // Decrement credits
+          toast.success("Contact unlocked successfully (dev mock)!");
+          return;
+      }
+
+      // Original API call for production
       try {
-          const response = await fetch(`/api/people/${personId}/unlock/`, { 
+          const response = await fetch(`/api/people/${personId}/unlock/`, {
               method: 'POST',
-              // Add headers for authentication (e.g., Authorization: Bearer <token>)
-              headers: {
-                  'Content-Type': 'application/json',
-                  // 'Authorization': `Bearer ${your_auth_token}`, // Include your auth token!
-                  // Add CSRF token header if needed for Django POST requests
-              }
+              headers: { 'Content-Type': 'application/json' /* Add auth headers if needed */ },
           });
-
           if (response.ok) {
-              const unlockedData = await response.json(); // Get updated person data
-
-              // --- SUCCESS ---
-              // a. Update the specific person in the results list
+              const unlockedData = await response.json();
               setPeopleResults(prevResults =>
                   prevResults.map(p =>
-                      p.id === personId
-                          ? { 
-                              ...p, 
-                              email: unlockedData.email ? { ...p.email, full: unlockedData.email } : p.email, 
-                              phone: unlockedData.phone ? { ...p.phone, full: unlockedData.phone } : p.phone
-                            } // Update with real data safely
-                          : p
+                      p.id === personId ? { ...p, email: unlockedData.email, phone: unlockedData.phone } : p
                   )
               );
-
-              // b. Set the unlocked status for this person's UI
               setShowContactInfo(prev => ({ ...prev, [personId]: true }));
-              
-              // c. Decrement credits in the frontend state for immediate UI update
-              updateLocalCredits(user.credits_remaining - 1); 
-
+              updateLocalCredits(user.credits_remaining - 1);
               toast.success("Contact unlocked successfully!");
-
           } else {
-              // --- FAILURE ---
               const errorData = await response.json();
-              if (response.status === 402) { // Payment Required (Insufficient Credits)
-                  toast.error("Insufficient credits.", {
-                      description: errorData.detail || "Upgrade your plan or wait for the monthly refresh.",
-                  });
-              } else {
-                  // Handle other errors (401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error)
-                  console.error("Unlock failed:", response.status, errorData);
-                  toast.error("Failed to unlock contact.", {
-                      description: errorData.detail || "Please try again later.",
-                  });
-              }
+              toast.error("Failed to unlock contact.");
           }
-
       } catch (error) {
-          console.error("Error during contact unlock API call:", error);
-          toast.error("An error occurred.", {
-              description: "Could not connect to the server. Please check your connection and try again.",
-          });
+          console.error(error);
+          toast.error("An error occurred.");
       }
   };
 
