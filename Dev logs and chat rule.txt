@@ -1,0 +1,213 @@
+continue every request step by step within your max single request context limit so the code dont break and we succesfully finish big request in small step by step but more quality outputs with less bugs
+
+and write down the chat logs and changes log you and I did with detailed explanation for other dev to understand it in detail step by step that I did and you sgugest to do in next steps.
+
+Add chat date/time and changes logs in detaeil and what you suggest to do next.
+
+Logs start from here:
+
+# Development Log - 24Jobs Frontend
+
+This log tracks significant changes and troubleshooting steps during development, particularly focusing on frontend authentication and the People page.
+
+## [Date of previous log entry] - Initial Auth Setup & Mocking
+
+**(Summary of previous entry - keeping it for context)**
+
+*   **Goal:** Implement `AuthContext`, integrate into `People.tsx`, fix import/provider errors.
+*   **Issues:** Unresolved imports (`sonner`, `@/contexts/AuthContext`), `useAuth` outside provider error.
+*   **Changes:**
+    *   Guided user on `npm install sonner`.
+    *   Provided code for dummy `AuthContext.tsx` ('developer' role, 1000 credits).
+    *   Modified `App.tsx` to wrap with `<AuthProvider>`.
+    *   Integrated `useAuth` into `People.tsx`.
+    *   Updated `handleUnlockContact` to check `user` & `credits_remaining`, added toasts.
+    *   Updated Unlock button state based on auth status/credits.
+*   **Outcome:** Dummy `AuthProvider` allows `People.tsx` render. Unlock button reflects dummy state.
+*   **Next Steps (from previous):** Replace dummy auth, implement backend unlock API, verify aliases, implement `updateLocalCredits`.
+
+---
+
+## [Current Date] - Understanding Current System & Integrating Real Data (CSV)
+
+**Goal:** Detail the current (mocked) frontend system for filtering, credits, and user roles in `People.tsx`. Outline the steps required to transition to a real backend powered by the data in `Demo data of people and company for creating database schemas.csv`.
+
+**1. Current Frontend System Breakdown (`People.tsx` with Mocks):**
+
+*   **Filtering:**
+    *   **State:** Filters are managed in the `filters` state object (`useState<Partial<Filters>>({})`). Keys in this object (e.g., `name_query`, `location_query`) are intended to match backend query parameters.
+    *   **UI:** The sidebar uses Shadcn `Accordion` and `Input` components defined in `personFilterGroups` and `companyFilterGroups`. Each input updates the corresponding key in the `filters` state via `handleFilterChange`.
+    *   **Applying Filters:** The "Apply Filters" button triggers `handleApplyFilters`. **Crucially, this function currently filters the hardcoded `MOCK_PEOPLE` and `MOCK_COMPANIES` arrays directly in the frontend.** It does *not* make an API call to the backend for searching/filtering. It logs the selected `filters` to the console.
+    *   **Filter Badges:** `activeFilterBadges` state updates based on the `filters` object to display active filter criteria below the "Active Filters" heading. `clearFilter` and `clearAllFilters` update the `filters` state and subsequently the badges.
+
+*   **User Roles & Credits (`AuthContext.tsx` - Dummy Implementation):**
+    *   **Provider:** `AuthProvider` in `AuthContext.tsx` wraps the application (via `App.tsx`). It uses `useState` to provide a *hardcoded* user object: `{ role: 'developer', credits: 1000 }` (or similar). There is no actual login/logout or fetching from a backend.
+    *   **Consumption:** `People.tsx` uses `const { user, updateLocalCredits } = useAuth();` to get this dummy user data.
+    *   **Usage:**
+        *   The `user` object (specifically `user.credits_remaining`) is checked in `handleUnlockContact` to determine if the unlock can proceed.
+        *   The "Unlock Contact" button's `disabled` state and appearance depend on `!user` and `user.credits_remaining <= 0`.
+        *   The `updateLocalCredits` function (provided by `AuthContext`) is called *after* a successful mock unlock to visually decrement the credit count in the UI, but this change isn't persisted anywhere.
+
+*   **Contact Unlocking (`handleUnlockContact` in `People.tsx`):**
+    *   **Checks:** It first checks if the contact is already shown (`showContactInfo[personId]`), if the user exists (`!user`), and if the user has credits (`user.credits_remaining <= 0`), showing toasts if checks fail.
+    *   **Development Mock:** It explicitly checks `if (process.env.NODE_ENV === 'development')`. If true (which it is during `npm run dev`), it **completely bypasses the API call**.
+        *   It simulates success by creating `mockUnlockedData`.
+        *   It updates the frontend state directly:
+            *   `setPeopleResults`: Updates the specific person's email/phone in the list.
+            *   `setShowContactInfo`: Marks the contact as visually unlocked.
+            *   `updateLocalCredits`: Decrements the credit count in the context's state.
+        *   It shows a "Contact unlocked successfully (dev mock)!" toast.
+    *   **Production Path (Currently Unused in Dev):** The `else` block contains the `fetch` call to `/api/people/{personId}/unlock/` using `POST`. This path is *not* being executed in the local development environment because of the dev mock block above it.
+
+**2. Integrating Real Data (`Demo data of people and company for creating database schemas.csv`):**
+
+The file `Demo data of people and company for creating database schemas.csv` (located at the workspace root or `E:\24Jobsv3\`) is the blueprint for our real backend data.
+
+**Goal:** Replace mocks with a real database populated from this CSV and a functional API.
+
+**Step-by-Step Integration Guide:**
+
+*   **Step 2.1: Backend - Database Schema (Django `models.py`)**
+    *   **Action:** Define Django models based *exactly* on the columns in the CSV file. Create separate models for `Person` and `Company`.
+    *   **Details:** Map CSV columns to appropriate Django model fields. Use `ForeignKey` to link `Person` to `Company` if applicable. Use `CharField`, `EmailField`, `URLField`, `IntegerField`, `DateField`, `TextField`, etc., as needed. Mark fields as `null=True, blank=True` if the data might be missing in the CSV.
+    *   **Example Snippet (`models.py`):**
+        ```python
+        from django.db import models
+
+        class Company(models.Model):
+            # Based on CSV columns like "Company Name", "Company Industry", etc.
+            company_name = models.CharField(max_length=255, unique=True, db_index=True) # "Company Name"
+            industry = models.CharField(max_length=255, null=True, blank=True) # "Company Industry"
+            website = models.URLField(max_length=500, null=True, blank=True) # "Company Website"
+            size = models.CharField(max_length=100, null=True, blank=True) # "Company Size"
+            founded = models.IntegerField(null=True, blank=True) # "Company Founded"
+            # Add fields for Company Location, Linkedin URL, etc. from CSV
+            # ...
+            location_name = models.CharField(max_length=255, null=True, blank=True) # "Company Location Name"
+            location_country = models.CharField(max_length=100, null=True, blank=True) # "Company Location Country"
+            # ... other company fields
+
+            def __str__(self):
+                return self.company_name
+
+        class Person(models.Model):
+            # Based on CSV columns like "Full name", "Job title", "Emails", etc.
+            full_name = models.CharField(max_length=255) # "Full name"
+            first_name = models.CharField(max_length=100, null=True, blank=True) # "First Name"
+            last_name = models.CharField(max_length=150, null=True, blank=True) # "Last Name"
+            job_title = models.CharField(max_length=255, null=True, blank=True) # "Job title"
+            industry = models.CharField(max_length=255, null=True, blank=True) # "Industry"
+            emails = models.TextField(null=True, blank=True) # "Emails" (Consider JSONField or separate Email model if multiple)
+            mobile = models.CharField(max_length=100, null=True, blank=True) # "Mobile"
+            phone_numbers = models.TextField(null=True, blank=True) # "Phone numbers" (Consider JSONField or separate Phone model)
+            location = models.CharField(max_length=255, null=True, blank=True) # "Location"
+            skills = models.TextField(null=True, blank=True) # "Skills" (Consider ManyToManyField or JSONField)
+            linkedin_url = models.URLField(max_length=500, null=True, blank=True) # "LinkedIn Url"
+            # Add ALL other relevant fields from CSV: Gender, Birth Date, Summary, etc.
+            # ...
+            company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name='employees') # Link to Company model
+            # You might store company name directly too if needed from "Company Name"
+            company_name_raw = models.CharField(max_length=255, null=True, blank=True) # "Company Name" (redundant if using ForeignKey effectively)
+
+
+            # Fields needed for frontend but not directly in CSV?
+            # avatar = models.URLField(max_length=500, null=True, blank=True) # Needs generation or mapping
+
+            def __str__(self):
+                return self.full_name
+        ```
+    *   **Run Migrations:** `python manage.py makemigrations` and `python manage.py migrate`.
+
+*   **Step 2.2: Backend - Data Population**
+    *   **Action:** Import the data from the CSV file into the newly created database tables.
+    *   **Method:** Use a Django management command (`commands/import_data.py`) to parse the CSV and create `Person` and `Company` objects, handling potential duplicates (e.g., for companies) and relationships. Alternatively, use libraries like `django-import-export`.
+
+*   **Step 2.3: Backend - API Development (DRF)**
+    *   **Action:** Create/Update DRF `Serializers`, `ViewSet`s, and `FilterSet`s to work with the new models based on the CSV structure.
+    *   **Serializers (`serializers.py`):** Define `PersonSerializer` and `CompanySerializer`. Control which fields (matching CSV columns) are exposed. Implement logic to mask sensitive fields like `emails`, `mobile`, `phone_numbers` by default. Add a way to conditionally *unmask* these fields (e.g., based on a context variable set in the `unlock` view).
+    *   **Views (`views.py`):**
+        *   Update `PeopleViewSet` and `CompanyViewSet` to use the new models and serializers.
+        *   Ensure pagination is configured if needed.
+        *   **Implement the `/api/people/{id}/unlock/` endpoint:**
+            *   Requires `POST` method.
+            *   Requires authentication (`permission_classes=[IsAuthenticated]`).
+            *   Fetches the `Person` object.
+            *   Checks the requesting `request.user`'s profile/credits.
+            *   If credits > 0:
+                *   Decrement user's credits in the database.
+                *   Serialize the `Person` using a version/context that *does not mask* contact info (`emails`, `mobile`, `phone_numbers`).
+                *   Return the serialized *unmasked* data with status 200.
+            *   If credits <= 0: Return status 402 (Payment Required) with an error message.
+            *   Handle other errors (404, 500).
+    *   **Filters (`filters.py`):**
+        *   Update `PersonFilter` and `CompanyFilter`. The filter fields (e.g., `name_query`, `location_query`, `title_query`) must now perform lookups against the *actual database fields* derived from the CSV.
+        *   **Example (`PersonFilter` update):**
+            ```python
+            # api/filters.py
+            import django_filters
+            from .models import Person
+            from django.db.models import Q
+
+            class PersonFilter(django_filters.FilterSet):
+                # Maps to frontend filters.name_query
+                name_query = django_filters.CharFilter(method='filter_name', label='Search Name')
+                # Maps to frontend filters.location_query
+                location_query = django_filters.CharFilter(field_name='location', lookup_expr='icontains') # Uses the 'Location' CSV column
+                # Maps to frontend filters.title_query
+                title_query = django_filters.CharFilter(field_name='job_title', lookup_expr='icontains') # Uses the 'Job title' CSV column
+                # Maps to frontend filters.company_query
+                company_query = django_filters.CharFilter(method='filter_company', label='Search Company')
+                # Maps to frontend filters.industry_query
+                industry_query = django_filters.CharFilter(field_name='industry', lookup_expr='icontains') # Uses the 'Industry' CSV column
+                # Add filters for 'Skills', etc. based on CSV columns and how they're stored
+
+                class Meta:
+                    model = Person
+                    fields = ['location_query', 'title_query', 'industry_query'] # Add fields for direct mapping
+
+                def filter_name(self, queryset, name, value):
+                    # Searches across relevant name fields from CSV
+                    return queryset.filter(
+                        Q(full_name__icontains=value) |
+                        Q(first_name__icontains=value) |
+                        Q.filter(last_name__icontains=value)
+                    )
+
+                def filter_company(self, queryset, name, value):
+                     # Searches across related company name or raw person company name field
+                     return queryset.filter(
+                         Q(company__company_name__icontains=value) | # If using ForeignKey
+                         Q(company_name_raw__icontains=value) # If storing raw name too
+                     )
+
+                 # Add custom methods for complex fields like Skills if needed
+            ```
+
+*   **Step 2.4: Frontend - Adapt Filters (`People.tsx`)**
+    *   **Action:** Modify `personFilterGroups` and `companyFilterGroups` to align with the backend `FilterSet`.
+    *   **Details:** The `key` for each facet *must* match the query parameter expected by the backend filter (e.g., `name_query`, `location_query`, `title_query`, `skills_query`). The `displayName` remains user-facing. Ensure inputs capture data relevant to the corresponding CSV column (e.g., the "Job Title" filter input should target the `job_title` field in the backend via the `title_query` key).
+    *   **Example:** If the backend `PersonFilter` expects `job_title` for the title search, the facet definition should be: `{ key: "title_query", displayName: "Job Title", placeholder: "Enter job title..." }`.
+
+*   **Step 2.5: Frontend - Adapt API Calls (`People.tsx`)**
+    *   **Action:** Remove the development mock and use real API calls.
+    *   **Search/Filter:** Modify `handleApplyFilters` (or use `react-query`'s `refetch`) to make a `GET` request to `/api/people/` or `/api/companies/`, passing the `filters` state as query parameters. Update `peopleResults`/`companyResults` with the response.
+    *   **Unlock:** Remove the `if (process.env.NODE_ENV === 'development')` block entirely from `handleUnlockContact`. Ensure the `fetch` call correctly handles the response (success or error) from the real `/api/people/{id}/unlock/` endpoint.
+    *   **Authentication:** Add necessary `Authorization` headers (e.g., `Authorization: Bearer <token>`) to *all* fetch requests (search and unlock) based on the actual logged-in user's token managed by the real `AuthContext`.
+
+*   **Step 2.6: Frontend - Replace Dummy Auth (`AuthContext.tsx`)**
+    *   **Action:** Implement real authentication.
+    *   **Details:** Modify `AuthProvider` to include login/logout functions that interact with backend authentication endpoints (e.g., using JWT or sessions). On successful login, fetch the *real* user data (role, `credits_remaining` from the backend database) and store it in the context's state. Implement `updateLocalCredits` to potentially sync with the backend or just update the local state reliably after an unlock.
+
+*   **Step 2.7: Frontend - Adapt Data Display (`People.tsx`)**
+    *   **Action:** Update the JSX rendering for people/company cards if the backend serializer structure differs from the mocks.
+    *   **Details:** For example, instead of `person.email.full`, you might now access `person.emails` (depending on your serializer). Ensure fields like `person.avatar` are correctly populated (either from the DB if added, or generated dynamically).
+
+**3. Summary & Immediate Next Steps:**
+
+1.  **Backend First:** Focus on creating the Django models (`Person`, `Company`) based accurately on the CSV columns, run migrations, and populate the database with the CSV data.
+2.  **Backend API:** Implement/update the DRF `Serializers`, `ViewSet`s, and `FilterSet`s to serve and filter the real data according to the new schema. Crucially, implement the `/api/people/{id}/unlock/` endpoint logic, including credit checks and deduction against the real user model.
+3.  **Frontend Filters:** Update `personFilterGroups`/`companyFilterGroups` in `People.tsx` to match the backend filter keys.
+4.  **Frontend API Calls:** Modify `handleApplyFilters` to fetch search results from the backend API. Remove the dev mock from `handleUnlockContact` so it calls the real backend endpoint. Add authentication headers.
+5.  **Real Auth:** Replace the dummy `AuthContext` with a real implementation connected to backend login/user data.
+
+This detailed plan provides a clear path from the current mocked state to a fully functional system using the real data structure defined in your CSV.
