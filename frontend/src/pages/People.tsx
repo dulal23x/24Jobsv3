@@ -1,822 +1,684 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPeople, unlockContact, createConnection } from '../lib/api';
+import { useState } from "react";
+import { Link } from "wouter";
 import { 
-  FiSearch, FiMail, FiPhone, FiUser, FiCheck, FiLock, FiUnlock, 
-  FiMessageSquare, FiMapPin, FiFilter, FiBriefcase, FiChevronDown,
-  FiCheckCircle, FiSliders, FiChevronLeft, FiChevronRight, FiPlus,
-  FiLinkedin, FiTwitter, FiFacebook, FiX, FiArrowDown, FiArrowUp,
-  FiClock, FiGlobe, FiRefreshCw
-} from 'react-icons/fi';
+  Search, 
+  MapPin, 
+  Download,
+  Mail,
+  Phone,
+  Facebook,
+  Twitter,
+  Linkedin
+} from "lucide-react";
+import Footer24Jobs from "../components/Footer24Jobs";
 
-// Define types based on API
+// Mock data for demonstration purposes
+const MOCK_PEOPLE = [
+  {
+    id: 1,
+    firstName: "John",
+    lastName: "Lewis",
+    position: "Chief Marketing Officer",
+    company: "Acme Inc",
+    location: "New York, NY, USA",
+    email: { hidden: "@johnlewis.co.uk", full: "john@johnlewis.co.uk" },
+    phone: { hidden: "077-646-XXXX", full: "077-646-8822" },
+    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+    connections: 320,
+    social: {
+      linkedin: "johnlewis",
+      twitter: "johnlewis"
+    }
+  },
+  {
+    id: 2,
+    firstName: "Sarah",
+    lastName: "Johnson",
+    position: "Software Engineer",
+    company: "Tech Solutions",
+    location: "San Francisco, CA, USA",
+    email: { hidden: "@gmail.com", full: "sarahjohnson@gmail.com" },
+    phone: { hidden: "415-555-XXXX", full: "415-555-9876" },
+    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
+    connections: 245,
+    social: {
+      linkedin: "sarahjohnson",
+      twitter: "sjohnson"
+    }
+  },
+  {
+    id: 3,
+    firstName: "Michael",
+    lastName: "Chen",
+    position: "Product Manager",
+    company: "Innovate Labs",
+    location: "Austin, TX, USA",
+    email: { hidden: "@innovatelabs.com", full: "mchen@innovatelabs.com" },
+    phone: { hidden: "512-333-XXXX", full: "512-333-7654" },
+    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+    connections: 189,
+    social: {
+      linkedin: "michaelchen",
+      twitter: "mikechen"
+    }
+  },
+  {
+    id: 4,
+    firstName: "Emma",
+    lastName: "Garcia",
+    position: "UX Designer",
+    company: "Creative Design Co",
+    location: "Chicago, IL, USA",
+    email: { hidden: "@creativedesign.co", full: "emma@creativedesign.co" },
+    phone: { hidden: "312-444-XXXX", full: "312-444-5432" },
+    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
+    connections: 276,
+    social: {
+      linkedin: "emmagarcia",
+      twitter: "designemma"
+    }
+  },
+  {
+    id: 5,
+    firstName: "David",
+    lastName: "Smith",
+    position: "Sales Director",
+    company: "Global Sales Inc",
+    location: "London, UK",
+    email: { hidden: "@globalsales.com", full: "dsmith@globalsales.com" },
+    phone: { hidden: "020-7946-XXXX", full: "020-7946-3210" },
+    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
+    connections: 412,
+    social: {
+      linkedin: "davidsmith",
+      twitter: "dsmith"
+    }
+  },
+];
+
+// Mock data for companies
+const MOCK_COMPANIES = [
+  {
+    id: 1,
+    name: "Acme Inc",
+    industry: "Technology",
+    size: "500-1000 employees",
+    location: "New York, NY, USA",
+    founded: 2005,
+    revenue: "$50M-100M",
+    website: "acmeinc.com",
+    description: "Leading provider of innovative technology solutions",
+    logo: "https://ui-avatars.com/api/?name=Acme+Inc&background=0062E6&color=fff&size=70",
+    keyPeople: ["John Lewis", "Maria Rodriguez"],
+    contactInfo: {
+      email: { hidden: "@acmeinc.com", full: "contact@acmeinc.com" },
+      phone: { hidden: "212-555-XXXX", full: "212-555-1234" }
+    }
+  },
+  {
+    id: 2,
+    name: "Tech Solutions",
+    industry: "Software Development",
+    size: "100-500 employees",
+    location: "San Francisco, CA, USA",
+    founded: 2012,
+    revenue: "$10M-50M",
+    website: "techsolutions.com",
+    description: "Custom enterprise software development and consulting",
+    logo: "https://ui-avatars.com/api/?name=Tech+Solutions&background=4CAF50&color=fff&size=70",
+    keyPeople: ["Sarah Johnson", "Alex Kim"],
+    contactInfo: {
+      email: { hidden: "@techsolutions.com", full: "info@techsolutions.com" },
+      phone: { hidden: "415-555-XXXX", full: "415-555-9876" }
+    }
+  },
+  {
+    id: 3,
+    name: "Innovate Labs",
+    industry: "Research & Development",
+    size: "50-100 employees",
+    location: "Austin, TX, USA",
+    founded: 2015,
+    revenue: "$5M-10M",
+    website: "innovatelabs.com",
+    description: "Cutting-edge research in AI and machine learning applications",
+    logo: "https://ui-avatars.com/api/?name=Innovate+Labs&background=FF5722&color=fff&size=70",
+    keyPeople: ["Michael Chen", "Lisa Wong"],
+    contactInfo: {
+      email: { hidden: "@innovatelabs.com", full: "hello@innovatelabs.com" },
+      phone: { hidden: "512-333-XXXX", full: "512-333-7654" }
+    }
+  },
+  {
+    id: 4,
+    name: "Creative Design Co",
+    industry: "Design Services",
+    size: "10-50 employees",
+    location: "Chicago, IL, USA",
+    founded: 2018,
+    revenue: "$1M-5M",
+    website: "creativedesign.co",
+    description: "Award-winning UI/UX design studio for digital products",
+    logo: "https://ui-avatars.com/api/?name=Creative+Design+Co&background=9C27B0&color=fff&size=70",
+    keyPeople: ["Emma Garcia", "James Wilson"],
+    contactInfo: {
+      email: { hidden: "@creativedesign.co", full: "design@creativedesign.co" },
+      phone: { hidden: "312-444-XXXX", full: "312-444-5432" }
+    }
+  },
+  {
+    id: 5,
+    name: "Global Sales Inc",
+    industry: "Business Services",
+    size: "1000+ employees",
+    location: "London, UK",
+    founded: 1998,
+    revenue: "$100M-500M",
+    website: "globalsales.com",
+    description: "International sales consulting and business development",
+    logo: "https://ui-avatars.com/api/?name=Global+Sales+Inc&background=F44336&color=fff&size=70",
+    keyPeople: ["David Smith", "Claire Bennett"],
+    contactInfo: {
+      email: { hidden: "@globalsales.com", full: "sales@globalsales.com" },
+      phone: { hidden: "020-7946-XXXX", full: "020-7946-3210" }
+    }
+  },
+];
+
 interface Person {
-  id: number | string;
+  id: number;
   firstName: string;
   lastName: string;
-  title?: string;
-  company?: { id: number | string | null; name: string } | null;
-  city?: string;
-  state?: string;
-  country?: string;
-  email?: string | null;
-  phone?: string | null;
-  isUnlocked: boolean;
-  connectStatus: 'none' | 'pending' | 'connected';
-  isNew?: boolean; // Added for UI display
-}
-
-interface PaginationResponse {
-  data: Person[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
+  position: string;
+  company: string;
+  location: string;
+  email: { hidden: string; full: string };
+  phone: { hidden: string; full: string };
+  avatar: string;
+  connections: number;
+  social: {
+    linkedin: string;
+    twitter: string;
   };
 }
 
-interface FilterOption {
-  id: string;
-  label: string;
-  count?: number;
+interface Company {
+  id: number;
+  name: string;
+  industry: string;
+  size: string;
+  location: string;
+  founded: number;
+  revenue: string;
+  website: string;
+  description: string;
+  logo: string;
+  keyPeople: string[];
+  contactInfo: {
+    email: { hidden: string; full: string };
+    phone: { hidden: string; full: string };
+  };
 }
-
-// Helper functions for masking contact info
-const maskEmail = (email: string | null | undefined): string => {
-  if (!email) return '***@***.com';
-  const [localPart, domain] = email.split('@');
-  return `***@${domain}`;
-};
-
-const maskPhone = (phone: string | null | undefined): string => {
-  if (!phone) return 'XXX-XXX-XXXX';
-  // Keep last 4 digits visible, mask the rest
-  return phone.replace(/\d(?=\d{4})/g, 'X');
-};
 
 export default function People() {
-  // State for search and filters
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [sortOption, setSortOption] = useState('relevance');
-  const [filters, setFilters] = useState({
-    connections: [] as string[],
-    industries: [] as string[],
-    companySize: [] as string[]
-  });
-  const queryClient = useQueryClient();
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'people' | 'companies'>('people');
   
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 500);
+  // People tab state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredPeople, setFilteredPeople] = useState<Person[]>(MOCK_PEOPLE);
+  const [connectedPeople, setConnectedPeople] = useState<Set<number>>(new Set());
+  const [showContactInfo, setShowContactInfo] = useState<Set<number>>(new Set());
+  
+  // Companies tab state
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>(MOCK_COMPANIES);
+  const [companySearchTerm, setCompanySearchTerm] = useState("");
+  const [followedCompanies, setFollowedCompanies] = useState<Set<number>>(new Set());
+  const [showCompanyInfo, setShowCompanyInfo] = useState<Set<number>>(new Set());
+  
+  // People tab handlers
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-  
-  // Fetch people data
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['people', { page, pageSize, keyword: debouncedQuery, location: selectedLocation, sort: sortOption, ...filters }],
-    queryFn: () => getPeople({ 
-      page, 
-      pageSize, 
-      keyword: debouncedQuery,
-      sortBy: sortOption,
-      location: selectedLocation,
-      connections: filters.connections.length > 0 ? filters.connections : undefined,
-      industries: filters.industries.length > 0 ? filters.industries : undefined,
-      companySize: filters.companySize.length > 0 ? filters.companySize : undefined,
-    }),
-  });
-  
-  // Mutation for unlocking contact info
-  const unlockMutation = useMutation({
-    mutationFn: (personId: number | string) => unlockContact(Number(personId)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['people'] });
-    },
-    onError: (error) => {
-      console.error('Error unlocking contact:', error);
-      // In a real application, you would show a toast or notification here
+    // Apply search term filter
+    let filtered = MOCK_PEOPLE;
+    if (searchTerm) {
+      filtered = filtered.filter(person => 
+        person.firstName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        person.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        person.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        person.position.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-  });
-  
-  // Mutation for creating connections
-  const connectMutation = useMutation({
-    mutationFn: (personId: number | string) => createConnection(Number(personId)),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['people'] });
-    },
-    onError: (error) => {
-      console.error('Error creating connection:', error);
-      // In a real application, you would show a toast or notification here
-    }
-  });
-  
-  // Handle sort change
-  const handleSortChange = (option: string) => {
-    setSortOption(option);
-    setPage(1); // Reset to first page on sort change
-    refetch();
+    
+    setFilteredPeople(filtered);
   };
-  
-  // Handler for filter changes
-  const handleFilterChange = (category: string, value: string, checked: boolean) => {
-    setFilters(prev => {
-      const newFilters = { ...prev };
-      if (category === 'connections') {
-        if (checked) {
-          newFilters.connections = [...newFilters.connections, value];
-        } else {
-          newFilters.connections = newFilters.connections.filter(item => item !== value);
-        }
-      } else if (category === 'industries') {
-        if (checked) {
-          newFilters.industries = [...newFilters.industries, value];
-        } else {
-          newFilters.industries = newFilters.industries.filter(item => item !== value);
-        }
-      } else if (category === 'companySize') {
-        if (checked) {
-          newFilters.companySize = [...newFilters.companySize, value];
-        } else {
-          newFilters.companySize = newFilters.companySize.filter(item => item !== value);
-        }
-      }
-      return newFilters;
+
+  const handleConnect = (personId: number) => {
+    setConnectedPeople(prev => {
+      const updated = new Set(prev);
+      updated.add(personId);
+      return updated;
     });
-    // Reset to first page when filters change
-    setPage(1);
   };
 
-  // Apply filters handler
-  const applyFilters = () => {
-    refetch();
-  };
-  
-  // Handle location change
-  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedLocation(e.target.value);
-  };
-  
-  // Handle pagination
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
-  
-  // Handle pagination navigation
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  };
-  
-  const handleNextPage = () => {
-    if (data?.pagination?.hasNextPage) {
-      setPage(page + 1);
-    }
+  const handleGetContactInfo = (personId: number) => {
+    setShowContactInfo(prev => {
+      const updated = new Set(prev);
+      updated.add(personId);
+      return updated;
+    });
   };
 
-  // Handle unlock contact
-  const handleUnlockContact = (personId: number | string) => {
-    unlockMutation.mutate(personId);
+  const isConnected = (personId: number) => connectedPeople.has(personId);
+  const canViewContactInfo = (personId: number) => isConnected(personId) || showContactInfo.has(personId);
+  
+  // Companies tab handlers
+  const handleCompanySearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    let filtered = MOCK_COMPANIES;
+    if (companySearchTerm) {
+      filtered = filtered.filter(company => 
+        company.name.toLowerCase().includes(companySearchTerm.toLowerCase()) || 
+        company.industry.toLowerCase().includes(companySearchTerm.toLowerCase()) ||
+        company.description.toLowerCase().includes(companySearchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredCompanies(filtered);
   };
   
-  // Handle connect request
-  const handleConnect = (personId: number | string) => {
-    connectMutation.mutate(personId);
+  const handleFollow = (companyId: number) => {
+    setFollowedCompanies(prev => {
+      const updated = new Set(prev);
+      updated.add(companyId);
+      return updated;
+    });
   };
+  
+  const handleGetCompanyInfo = (companyId: number) => {
+    setShowCompanyInfo(prev => {
+      const updated = new Set(prev);
+      updated.add(companyId);
+      return updated;
+    });
+  };
+  
+  const isFollowing = (companyId: number) => followedCompanies.has(companyId);
+  const canViewCompanyInfo = (companyId: number) => isFollowing(companyId) || showCompanyInfo.has(companyId);
 
   return (
-    <div className="container-fluid p-0">
-      <div className="row g-0">
-        {/* Left sidebar for filters - fixed position */}
-        <div className="col-md-3 col-lg-2 d-none d-md-block vh-100 position-fixed" style={{ overflowY: 'auto', backgroundColor: '#f8f9fa' }}>
-          <div className="p-3">
-            <h5 className="fw-bold mb-4">Filters</h5>
-            
-            {/* Connection filter */}
-            <div className="mb-4">
-              <h6 className="fw-semibold small text-uppercase mb-2">Connection</h6>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterConnections" 
-                  checked={filters.connections.includes('1st')}
-                  onChange={(e) => handleFilterChange('connections', '1st', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterConnections">
-                  1st connections
-                </label>
+    <div className="min-h-screen flex flex-col font-inter text-text-primary">
+      {/* <Header /> */}
+      <main>
+        <div className="container mx-auto max-w-[1180px] px-4 md:px-6 py-8">
+          {/* Top tabs for People/Companies */}
+          <div className="flex mb-6 bg-gray-100 rounded-full w-64 p-1 shadow-sm">
+            <button 
+              className={`flex-1 py-2.5 px-5 rounded-full font-medium text-sm transition-all ${
+                activeTab === 'people' 
+                  ? 'bg-[#3c5aa8] text-white hover:bg-[#2c4a98]' 
+                  : 'text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('people')}
+            >
+              People
+            </button>
+            <button 
+              className={`flex-1 py-2.5 px-5 rounded-full font-medium text-sm transition-all ${
+                activeTab === 'companies' 
+                  ? 'bg-[#3c5aa8] text-white hover:bg-[#2c4a98]' 
+                  : 'text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('companies')}
+            >
+              Companies
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Left sidebar with filters */}
+            <div className="md:col-span-1">
+              <div className="border border-gray-200 rounded-lg mb-5 shadow-sm hover:border-gray-300 transition-all">
+                <button className="w-full py-3.5 px-4 text-left text-gray-700 font-medium text-sm">
+                  Saved Searches
+                </button>
               </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterNetworkConnections" 
-                  checked={filters.connections.includes('2nd')}
-                  onChange={(e) => handleFilterChange('connections', '2nd', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterNetworkConnections">
-                  2nd connections
-                </label>
+              
+              <div className="mb-5">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-medium text-gray-700">Search Filters</h3>
+                  <button className="text-[#0D6EF7] text-xs hover:underline">Clear All</button>
+              </div>
+                
+                <div className="flex items-center bg-blue-50 rounded-md px-2.5 py-1.5 mb-4 w-fit shadow-sm">
+                  <Search size={12} className="text-[#0D6EF7] mr-1.5" />
+                  <span className="text-xs text-gray-700">john</span>
+                  <button className="ml-1.5 text-[#0D6EF7] hover:text-[#0A56C4] font-medium">×</button>
+            </div>
+            
+                {/* Filter Accordion Items */}
+                <div className="space-y-0 rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-6">
+                  {[
+                    "Name",
+                    "Location",
+                    "Occupation",
+                    "Role & Department",
+                    "Skills",
+                    "Years of Experience",
+                    "Healthcare",
+                    "Employer",
+                    "Company Name or Domain",
+                    "Intent"
+                  ].map((filter, index) => (
+                    <button 
+                      key={filter} 
+                      className={`w-full flex justify-between items-center py-3 px-4 border-b border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors ${index === 2 || index === 7 ? 'bg-gray-50' : ''}`}
+                    >
+                      {filter}
+                      {index === 2 || index === 7 ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 transform rotate-180">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+              </div>
+                
+                {/* Bottom Action Buttons */}
+                <div className="space-y-3">
+                  <button className="w-full py-3.5 bg-[#3c5aa8] text-white rounded-md font-medium shadow-sm hover:bg-[#2c4a98] transition-colors">
+                    Save This Search
+                  </button>
+                  <button className="w-full py-3.5 bg-[#4CAF50] text-white rounded-md font-medium shadow-sm hover:bg-[#43a047] transition-colors flex items-center justify-center">
+                    <span className="mr-1.5">Start New Autopilot</span>
+                    <span className="text-xs px-1.5 py-0.5 bg-white text-green-600 rounded font-medium">Beta</span>
+                  </button>
+              </div>
               </div>
             </div>
             
-            {/* Industry filter */}
-            <div className="mb-4">
-              <h6 className="fw-semibold small text-uppercase mb-2">Industry</h6>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterTechnology" 
-                  checked={filters.industries.includes('Technology')}
-                  onChange={(e) => handleFilterChange('industries', 'Technology', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterTechnology">
-                  Technology
-                </label>
+            {/* Main content area */}
+            <div className="md:col-span-3">
+              {activeTab === 'people' ? (
+                <>
+                  {/* People Search Form */}
+                  <div className="bg-white rounded-lg shadow-md mb-6 hover:shadow-lg transition-shadow">
+                    <div className="border-b border-gray-200 px-6 py-4">
+                      <h1 className="text-lg font-medium text-gray-800">People Search</h1>
               </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterFinance" 
-                  checked={filters.industries.includes('Finance')}
-                  onChange={(e) => handleFilterChange('industries', 'Finance', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterFinance">
-                  Finance
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterHealthcare" 
-                  checked={filters.industries.includes('Healthcare')}
-                  onChange={(e) => handleFilterChange('industries', 'Healthcare', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterHealthcare">
-                  Healthcare
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterEducation" 
-                  checked={filters.industries.includes('Education')}
-                  onChange={(e) => handleFilterChange('industries', 'Education', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterEducation">
-                  Education
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterMarketing" 
-                  checked={filters.industries.includes('Marketing')}
-                  onChange={(e) => handleFilterChange('industries', 'Marketing', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterMarketing">
-                  Marketing
-                </label>
+                    
+                    <div className="px-6 py-5">
+                      <form onSubmit={handleSearch}>
+                        {/* Search button removed as requested */}
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-600 italic">
+                            Use the filters on the left to refine your search
               </div>
             </div>
-            
-            {/* Company Size filter */}
-            <div className="mb-4">
-              <h6 className="fw-semibold small text-uppercase mb-2">Company Size</h6>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterSmallBusiness" 
-                  checked={filters.companySize.includes('1-10')}
-                  onChange={(e) => handleFilterChange('companySize', '1-10', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterSmallBusiness">
-                  1-10 employees
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterMediumBusiness" 
-                  checked={filters.companySize.includes('11-50')}
-                  onChange={(e) => handleFilterChange('companySize', '11-50', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterMediumBusiness">
-                  11-50 employees
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterLargeBusiness" 
-                  checked={filters.companySize.includes('51-200')}
-                  onChange={(e) => handleFilterChange('companySize', '51-200', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterLargeBusiness">
-                  51-200 employees
-                </label>
-              </div>
-              <div className="form-check mb-2">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="filterEnterprise" 
-                  checked={filters.companySize.includes('201+')}
-                  onChange={(e) => handleFilterChange('companySize', '201+', e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="filterEnterprise">
-                  201+ employees
-                </label>
-              </div>
-            </div>
-            
-            <button className="btn btn-outline-primary w-100" onClick={applyFilters}>Apply Filters</button>
+                      </form>
           </div>
         </div>
         
-        {/* Main content area - with offset for sidebar */}
-        <div className="col-md-9 col-lg-10 offset-md-3 offset-lg-2">
-          {/* Fixed search bar */}
-          <div className="sticky-top bg-white p-3 border-bottom shadow-sm">
-            <div className="d-flex justify-content-between align-items-center mb-3">
+                  {/* People Results Section */}
+                  <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
               <div>
-                <h1 className="h4 fw-bold mb-0">People Search</h1>
-                <p className="text-secondary small mb-0">Connect with industry professionals</p>
+                        <h2 className="font-medium text-gray-800">People</h2>
+                        <p className="text-xs text-gray-500 mt-1">Showing <span className="font-medium text-gray-700">{filteredPeople.length}</span> results</p>
               </div>
-              <button className="btn btn-outline-secondary btn-sm d-none d-md-inline-block" onClick={() => refetch()}>
-                <FiRefreshCw className="me-1" /> Refresh
-              </button>
-            </div>
-            
-            {/* Search bar */}
-            <div className="row g-2">
-              <div className="col-md-7">
-                <div className="input-group">
-                  <span className="input-group-text bg-white border-end-0">
-                    <FiSearch className="text-secondary" />
-                  </span>
-                  <input 
-                    type="text" 
-                    className="form-control border-start-0 shadow-none" 
-                    placeholder="Search by name, title, or company"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        setDebouncedQuery(searchQuery);
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="col-md-3">
-                <select 
-                  className="form-select shadow-none"
-                  value={selectedLocation}
-                  onChange={handleLocationChange}
-                >
-                  <option value="">All locations</option>
-                  <option value="San Francisco, CA">San Francisco, CA</option>
-                  <option value="New York, NY">New York, NY</option>
-                  <option value="Austin, TX">Austin, TX</option>
-                  <option value="Seattle, WA">Seattle, WA</option>
-                  <option value="Chicago, IL">Chicago, IL</option>
-                </select>
-              </div>
-              <div className="col-md-2">
+                      <div className="flex items-center gap-2">
                 <button 
-                  type="submit" 
-                  className="btn btn-primary w-100"
-                  onClick={() => setDebouncedQuery(searchQuery)}
+                          className="flex items-center gap-1.5 text-gray-600 border-gray-300 hover:bg-gray-100 transition-colors h-9"
                 >
-                  Search
+                          <Download size={15} />
+                          Export
                 </button>
               </div>
             </div>
             
-            {/* Mobile filter button - shows on small screens */}
-            <div className="d-md-none mt-2">
-              <button className="btn btn-outline-secondary w-100" data-bs-toggle="offcanvas" data-bs-target="#mobileFilters">
-                <FiFilter className="me-1" /> Show Filters
-              </button>
+                    {/* People List */}
+                    <div>
+                      {filteredPeople.map((person, index) => (
+                        <div 
+                          key={person.id} 
+                          className={`py-5 px-6 flex items-start border-b border-gray-200 ${index % 2 === 1 ? 'bg-gray-50' : ''} hover:bg-blue-50/20 transition-colors`}
+                        >
+                          {/* Checkbox */}
+                          <div className="mt-1 mr-4">
+                            <input type="checkbox" className="rounded border-gray-300 text-[#0D6EF7] focus:ring-[#0D6EF7]" />
             </div>
             
-            {/* Results count and sort */}
-            <div className="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <p className="text-secondary small mb-0">{data?.pagination?.total || 0} professionals found</p>
+                          {/* Avatar */}
+                          <div className="mr-4">
+                            <img 
+                              src={person.avatar} 
+                              alt={`${person.firstName} ${person.lastName}`}
+                              className="w-11 h-11 rounded-full object-cover border border-gray-200 shadow-sm"
+                            />
               </div>
-              <div className="dropdown">
-                <button className="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                  <FiSliders className="me-1" /> Sort: {sortOption.charAt(0).toUpperCase() + sortOption.slice(1)}
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="sortDropdown">
-                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('relevance')}>Relevance</a></li>
-                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('name')}>Name (A-Z)</a></li>
-                  <li><a className="dropdown-item" href="#" onClick={() => handleSortChange('recentlyAdded')}>Recently Added</a></li>
-                </ul>
+                          
+                          {/* Column 1: Name & Details */}
+                          <div className="mr-6 min-w-[180px] flex-1">
+                            <h3 className="text-[15px] font-semibold text-gray-800 hover:text-[#0D6EF7] cursor-pointer transition-colors">
+                              {person.firstName} {person.lastName}
+                            </h3>
+                            <p className="text-[13px] text-gray-600 mt-1.5">
+                              {person.position}
+                            </p>
+                            <p className="text-[12px] text-gray-500 mt-1.5 flex items-center">
+                              <MapPin size={12} className="mr-1.5 text-gray-400" />
+                              {person.location}
+                            </p>
               </div>
+                          
+                          {/* Column 2: Company */}
+                          <div className="mr-6 min-w-[120px]">
+                            <Link 
+                              href="#" 
+                              className="text-[14px] text-[#0D6EF7] hover:underline font-medium"
+                            >
+                              {person.company}
+                            </Link>
+                            <div className="mt-2 inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                              {person.position.split(' ')[0]}
             </div>
           </div>
           
-          {/* Main content */}
-          <div className="p-3">
-            {isLoading ? (
-              <div className="card shadow-sm border-0 p-5 text-center">
-                <div className="spinner-border text-primary mx-auto" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-                <p className="mt-3 text-secondary">Loading people data...</p>
-              </div>
-            ) : error ? (
-              <div className="card shadow-sm border-0 p-4">
-                <div className="alert alert-danger m-0">
-                  <FiX className="me-2" /> An error occurred while loading people data. Please try again.
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* People list */}
-                {data?.data.length === 0 ? (
-                  <div className="card shadow-sm border-0 p-5 text-center">
-                    <FiUser size={48} className="text-muted mx-auto mb-3" />
-                    <h5>No people found</h5>
-                    <p className="text-muted">Try adjusting your search or filters</p>
-                  </div>
-                ) : (
-                  <div className="list-group mb-4">
-                    {data?.data.map((person: Person) => (
-                      <div key={person.id} className="list-group-item border-0 shadow-sm rounded mb-3 p-0">
-                        <div className="p-3">
-                          <div className="row align-items-center">
-                            {/* Avatar and basic info */}
-                            <div className="col-md-5">
-                              <div className="d-flex align-items-center">
-                                <div className="position-relative me-3">
-                                  <div className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style={{width: "48px", height: "48px", fontSize: "16px"}}>
-                                    {person.firstName.charAt(0)}{person.lastName.charAt(0)}
-                                  </div>
-                                  {person.isNew && (
-                                    <span className="position-absolute top-0 start-100 translate-middle badge bg-success rounded-pill" style={{fontSize: "0.6rem"}}>
-                                      New
+                          {/* Column 3: Contact & Tags */}
+                          <div className="mr-6 flex-1">
+                            <div className="flex items-center mb-2.5">
+                              <Mail size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewContactInfo(person.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm`}>
+                                {canViewContactInfo(person.id) ? 
+                                  person.email.full : 
+                                  <span>
+                                    <span className="text-gray-400 font-medium">•••</span>
+                                    {person.email.hidden}
                                     </span>
-                                  )}
-                                </div>
-                                <div>
-                                  <div className="d-flex align-items-center">
-                                    <h5 className="h6 fw-bold mb-0">{person.firstName} {person.lastName}</h5>
-                                    {person.connectStatus === 'connected' && (
-                                      <span className="badge bg-success rounded-pill ms-2 px-2 py-1">
-                                        <FiCheck className="me-1" size={10} /> Connected
-                                      </span>
-                                    )}
-                                    {person.connectStatus === 'pending' && (
-                                      <span className="badge bg-warning rounded-pill ms-2 px-2 py-1">
-                                        <FiClock className="me-1" size={10} /> Pending
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-muted small mb-0">{person.title || 'Professional'}</p>
-                                  <p className="small mb-0">
-                                    <span className="text-primary">{person.company?.name || 'Company'}</span>
-                                    {person.city && <span className="text-muted ms-2"><FiMapPin className="me-1" size={12} />{person.city}</span>}
-                                  </p>
+                                }
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <Phone size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewContactInfo(person.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm`}>
+                                {canViewContactInfo(person.id) ? person.phone.full : person.phone.hidden}
                                 </div>
                               </div>
                             </div>
                             
-                            {/* Contact info */}
-                            <div className="col-md-4">
-                              <div className="row">
-                                <div className="col-md-12">
-                                  <div className="d-flex align-items-center mb-1">
-                                    <FiMail className={`me-2 ${person.isUnlocked ? 'text-primary' : 'text-muted'}`} size={14} />
-                                    <span className="small">
-                                      {person.isUnlocked ? person.email : maskEmail(person.email)}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="col-md-12">
-                                  <div className="d-flex align-items-center">
-                                    <FiPhone className={`me-2 ${person.isUnlocked ? 'text-primary' : 'text-muted'}`} size={14} />
-                                    <span className="small">
-                                      {person.isUnlocked ? person.phone : maskPhone(person.phone)}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Action buttons */}
-                            <div className="col-md-3 text-end">
-                              <div className="d-flex gap-2">
-                                {person.connectStatus === 'connected' ? (
-                                  <button className="btn btn-outline-primary btn-sm flex-grow-1">
-                                    <FiMessageSquare className="me-1" size={14} /> Message
-                                  </button>
-                                ) : person.connectStatus === 'pending' ? (
-                                  <button className="btn btn-outline-secondary btn-sm flex-grow-1" disabled>
-                                    <FiClock className="me-1" size={14} /> Request Sent
-                                  </button>
-                                ) : (
+                          {/* Actions */}
+                          <div className="flex items-center">
                                   <button 
-                                    className="btn btn-outline-primary btn-sm flex-grow-1"
-                                    onClick={() => handleConnect(person.id)}
-                                    disabled={connectMutation.isPending && connectMutation.variables === person.id}
-                                  >
-                                    {connectMutation.isPending && connectMutation.variables === person.id ? (
-                                      <>
-                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                        Connecting...
-                                      </>
-                                    ) : (
-                                      <>
-                                    <FiPlus className="me-1" size={14} /> Connect
-                                      </>
-                                    )}
+                              className={`h-9 rounded-[10px] text-white px-4 text-sm font-semibold shadow-md transition-all duration-150 whitespace-nowrap
+                                ${canViewContactInfo(person.id) ? (isConnected(person.id) ? 'bg-green-500 hover:bg-green-600' : 'bg-[#1877f2] hover:bg-[#166fe0]') : 'bg-[#1877f2] hover:bg-[#166fe0]'}
+                              `}
+                              style={{boxShadow: '0 2px 8px 0 rgba(24,119,242,0.10)', whiteSpace: 'nowrap'}} 
+                              onClick={() => canViewContactInfo(person.id) ? handleConnect(person.id) : handleGetContactInfo(person.id)}
+                              disabled={isConnected(person.id)}
+                            >
+                              {canViewContactInfo(person.id) ? 
+                                (isConnected(person.id) ? 'Connected' : 'Connect') : 
+                                'View Contact'}
+                            </button>
+                            <button className="ml-3 text-[#0D6EF7] text-sm hover:text-[#0A56C4] underline">
+                              View More
                                   </button>
-                                )}
-                                
-                                {!person.isUnlocked ? (
-                                  <button 
-                                    className="btn btn-primary btn-sm flex-grow-1"
-                                    onClick={() => handleUnlockContact(person.id)}
-                                    disabled={unlockMutation.isPending && unlockMutation.variables === person.id}
-                                  >
-                                    {unlockMutation.isPending && unlockMutation.variables === person.id ? (
-                                      <>
-                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                        Unlocking...
-                                      </>
-                                    ) : (
-                                      <>
-                                    <FiUnlock className="me-1" size={14} /> Unlock
-                                      </>
-                                    )}
-                                  </button>
-                                ) : (
-                                  <button className="btn btn-outline-secondary btn-sm flex-grow-1">
-                                    <FiGlobe className="me-1" size={14} /> Profile
-                                  </button>
-                                )}
-                              </div>
-                            </div>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+                                      </>
+                                    ) : (
+                                      <>
+                  {/* Companies Search Form */}
+                  <div className="bg-white rounded-lg shadow-md mb-6 hover:shadow-lg transition-shadow">
+                    <div className="border-b border-gray-200 px-6 py-4">
+                      <h1 className="text-lg font-medium text-gray-800">Companies Search</h1>
+                              </div>
+                    
+                    <div className="px-6 py-5">
+                      <form onSubmit={handleCompanySearch}>
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-600 italic">
+                            Use the filters on the left to refine your company search
+                          </div>
+                        </div>
+                      </form>
                       </div>
-                    ))}
                   </div>
-                )}
-                
-                {/* Pagination */}
-                {data?.pagination && data.pagination.total > 0 && (
-                  <div className="d-flex justify-content-center mt-4">
-                    <nav aria-label="People pagination">
-                      <ul className="pagination">
-                        <li className={`page-item ${page <= 1 ? 'disabled' : ''}`}>
-                          <a 
-                            className="page-link" 
-                            href="#" 
-                            aria-label="Previous"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePrevPage();
-                            }}
-                          >
-                            <FiChevronLeft size={18} />
-                          </a>
-                        </li>
-                        
-                        {(() => {
-                          const currentPage = page;
-                          const totalPages = data.pagination.totalPages;
-                          let startPage = Math.max(1, currentPage - 2);
-                          let endPage = Math.min(totalPages, startPage + 4);
+
+                  {/* Companies Results Section */}
+                  <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                      <div>
+                        <h2 className="font-medium text-gray-800">Companies</h2>
+                        <p className="text-xs text-gray-500 mt-1">Showing <span className="font-medium text-gray-700">{filteredCompanies.length}</span> results</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="flex items-center gap-1.5 text-gray-600 border-gray-300 hover:bg-gray-100 transition-colors h-9"
+                        >
+                          <Download size={15} />
+                          Export
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Companies List */}
+                    <div>
+                      {filteredCompanies.map((company, index) => (
+                        <div 
+                          key={company.id} 
+                          className={`py-5 px-6 flex items-start border-b border-gray-200 ${index % 2 === 1 ? 'bg-gray-50' : ''} hover:bg-blue-50/20 transition-colors`}
+                        >
+                          {/* Checkbox */}
+                          <div className="mt-1 mr-4">
+                            <input type="checkbox" className="rounded border-gray-300 text-[#0D6EF7] focus:ring-[#0D6EF7]" />
+                          </div>
                           
-                          // Adjust start page if we're near the end
-                          if (endPage - startPage < 4 && startPage > 1) {
-                            startPage = Math.max(1, endPage - 4);
-                          }
+                          {/* Logo */}
+                          <div className="mr-4">
+                            <img 
+                              src={company.logo} 
+                              alt={company.name}
+                              className="w-11 h-11 rounded-md object-cover border border-gray-200 shadow-sm"
+                            />
+                          </div>
                           
-                          return Array.from(
-                            { length: endPage - startPage + 1 }, 
-                            (_, i) => startPage + i
-                          ).map(pageNum => (
-                            <li key={pageNum} className={`page-item ${pageNum === page ? 'active' : ''}`}>
-                              <a 
-                                className="page-link" 
-                                href="#"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  handlePageChange(pageNum);
-                                }}
-                              >
-                                {pageNum}
-                              </a>
-                            </li>
-                          ));
-                        })()}
-                        
-                        <li className={`page-item ${page >= data.pagination.totalPages ? 'disabled' : ''}`}>
-                          <a 
-                            className="page-link" 
-                            href="#" 
-                            aria-label="Next"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleNextPage();
-                            }}
-                          >
-                            <FiChevronRight size={18} />
-                          </a>
-                        </li>
-                      </ul>
-                    </nav>
+                          {/* Column 1: Company Details */}
+                          <div className="mr-6 min-w-[180px] flex-1">
+                            <h3 className="text-[15px] font-semibold text-gray-800 hover:text-[#0D6EF7] cursor-pointer transition-colors">
+                              {company.name}
+                            </h3>
+                            <p className="text-[13px] text-gray-600 mt-1.5">
+                              {company.industry}
+                            </p>
+                            <p className="text-[12px] text-gray-500 mt-1.5 flex items-center">
+                              <MapPin size={12} className="mr-1.5 text-gray-400" />
+                              {company.location}
+                            </p>
+                          </div>
+                          
+                          {/* Column 2: Company Info */}
+                          <div className="mr-6 min-w-[120px]">
+                            <Link 
+                              href={`https://${company.website}`} 
+                              className="text-[14px] text-[#0D6EF7] hover:underline font-medium"
+                              target="_blank"
+                            >
+                              {company.website}
+                            </Link>
+                            <div className="mt-2 flex items-center gap-2">
+                              <div className="inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                                {company.size}
                   </div>
-                )}
-              </>
-            )}
+                              <div className="inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                                Founded {company.founded}
           </div>
         </div>
       </div>
       
-      {/* Mobile filter off-canvas sidebar */}
-      <div className="offcanvas offcanvas-start" tabIndex={-1} id="mobileFilters" aria-labelledby="mobileFiltersLabel">
-        <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="mobileFiltersLabel">Filters</h5>
-          <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                          {/* Column 3: Contact & Info */}
+                          <div className="mr-6 flex-1">
+                            <div className="flex items-center mb-2.5">
+                              <Mail size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewCompanyInfo(company.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm`}>
+                                {canViewCompanyInfo(company.id) ? 
+                                  company.contactInfo.email.full : 
+                                  <span>
+                                    <span className="text-gray-400 font-medium">•••</span>
+                                    {company.contactInfo.email.hidden}
+                                  </span>
+                                }
+                              </div>
         </div>
-        <div className="offcanvas-body">
-          {/* Copy of the filter contents for mobile */}
-          <div className="mb-4">
-            <h6 className="fw-semibold small text-uppercase mb-2">Connection</h6>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterConnections" 
-                checked={filters.connections.includes('1st')}
-                onChange={(e) => handleFilterChange('connections', '1st', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterConnections">
-                1st connections
-              </label>
+                            <div className="flex items-center">
+                              <Phone size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewCompanyInfo(company.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm`}>
+                                {canViewCompanyInfo(company.id) ? company.contactInfo.phone.full : company.contactInfo.phone.hidden}
             </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterNetworkConnections" 
-                checked={filters.connections.includes('2nd')}
-                onChange={(e) => handleFilterChange('connections', '2nd', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterNetworkConnections">
-                2nd connections
-              </label>
             </div>
           </div>
           
-          {/* Industry filter */}
-          <div className="mb-4">
-            <h6 className="fw-semibold small text-uppercase mb-2">Industry</h6>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterTechnology" 
-                checked={filters.industries.includes('Technology')}
-                onChange={(e) => handleFilterChange('industries', 'Technology', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterTechnology">
-                Technology
-              </label>
+                          {/* Actions */}
+                          <div className="flex items-center">
+                            <button
+                              className={`h-9 rounded-lg text-white px-[12px] text-sm font-medium shadow-sm ${
+                                isFollowing(company.id) 
+                                  ? 'bg-green-500 hover:bg-green-600' 
+                                  : canViewCompanyInfo(company.id) 
+                                    ? 'bg-[#0D6EF7] hover:bg-[#0A56C4]' 
+                                    : 'bg-[#0D6EF7] hover:bg-[#0A56C4]'
+                              }`}
+                              onClick={() => canViewCompanyInfo(company.id) ? handleFollow(company.id) : handleGetCompanyInfo(company.id)}
+                              disabled={isFollowing(company.id)}
+                            >
+                              {canViewCompanyInfo(company.id) ? 
+                                (isFollowing(company.id) ? 'Following' : 'Follow') : 
+                                'View Info'}
+                            </button>
+                            <button className="ml-3 text-[#0D6EF7] text-sm hover:text-[#0A56C4] underline">
+                              View More
+                            </button>
             </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterFinance" 
-                checked={filters.industries.includes('Finance')}
-                onChange={(e) => handleFilterChange('industries', 'Finance', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterFinance">
-                Finance
-              </label>
             </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterHealthcare" 
-                checked={filters.industries.includes('Healthcare')}
-                onChange={(e) => handleFilterChange('industries', 'Healthcare', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterHealthcare">
-                Healthcare
-              </label>
-            </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterEducation" 
-                checked={filters.industries.includes('Education')}
-                onChange={(e) => handleFilterChange('industries', 'Education', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterEducation">
-                Education
-              </label>
-            </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterMarketing" 
-                checked={filters.industries.includes('Marketing')}
-                onChange={(e) => handleFilterChange('industries', 'Marketing', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterMarketing">
-                Marketing
-              </label>
+                      ))}
             </div>
           </div>
-          
-          {/* Company Size filter */}
-          <div className="mb-4">
-            <h6 className="fw-semibold small text-uppercase mb-2">Company Size</h6>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterSmallBusiness" 
-                checked={filters.companySize.includes('1-10')}
-                onChange={(e) => handleFilterChange('companySize', '1-10', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterSmallBusiness">
-                1-10 employees
-              </label>
-            </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterMediumBusiness" 
-                checked={filters.companySize.includes('11-50')}
-                onChange={(e) => handleFilterChange('companySize', '11-50', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterMediumBusiness">
-                11-50 employees
-              </label>
-            </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterLargeBusiness" 
-                checked={filters.companySize.includes('51-200')}
-                onChange={(e) => handleFilterChange('companySize', '51-200', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterLargeBusiness">
-                51-200 employees
-              </label>
-            </div>
-            <div className="form-check mb-2">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="mFilterEnterprise" 
-                checked={filters.companySize.includes('201+')}
-                onChange={(e) => handleFilterChange('companySize', '201+', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="mFilterEnterprise">
-                201+ employees
-              </label>
+                </>
+              )}
             </div>
           </div>
-          
-          <button className="btn btn-primary w-100" data-bs-dismiss="offcanvas" onClick={applyFilters}>Apply Filters</button>
         </div>
-      </div>
+      </main>
+      <Footer24Jobs />
     </div>
   );
 }

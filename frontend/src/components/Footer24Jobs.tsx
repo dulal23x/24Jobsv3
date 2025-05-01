@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
+import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 export default function Footer24Jobs() {
   return (
@@ -31,7 +32,7 @@ export default function Footer24Jobs() {
           <div className="row">
             {/* Logo and Social Media Section */}
             <div className="col-lg-3 col-md-6 mb-5 mb-lg-0">
-              <div className="fw-bold text-[#0a66c2] fs-3 d-flex align-items-center mb-4 xs-center justify-content-md-start justify-content-center">
+              <div className="fw-bold  fs-3 d-flex align-items-center mb-4 xs-center justify-content-md-start justify-content-center">
                 <i className="bi bi-briefcase-fill me-2 fs-3"></i>
                 <span className="letter-spacing-1">24Jobs</span>
               </div>
@@ -41,31 +42,25 @@ export default function Footer24Jobs() {
               <h6 className="fw-bold mb-3 text-gray-900 footer-heading xs-center text-md-left">Connect With Us</h6>
               <div className="social-media-section mb-4">
                 <div className="d-flex gap-3 mb-3 justify-content-md-start justify-content-center">
-                  <a href="#" className="social-footer-link" aria-label="Facebook">
-                    <i className="bi bi-facebook"></i>
+                  <a href="https://www.facebook.com/24jobs.net/" className="social-footer-link" aria-label="Facebook" style={{color: '#1877f2', backgroundColor: 'white'}}>
+                    <FaFacebook size={28} />
                   </a>
-                  <a href="#" className="social-footer-link" aria-label="Twitter">
-                    <i className="bi bi-twitter-x"></i>
+                  
+                 
+                  <a href="https://www.linkedin.com/company/24jobs" className="social-footer-link" aria-label="LinkedIn" style={{color: '#0a66c2', backgroundColor: 'white'}}>
+                    <FaLinkedin size={28} />
                   </a>
-                  <a href="#" className="social-footer-link" aria-label="Instagram">
-                    <i className="bi bi-instagram"></i>
-                  </a>
-                  <a href="#" className="social-footer-link" aria-label="LinkedIn">
-                    <i className="bi bi-linkedin"></i>
-                  </a>
-                  <a href="#" className="social-footer-link" aria-label="YouTube">
-                    <i className="bi bi-youtube"></i>
-                  </a>
+                  
                 </div>
                 
                 <div className="d-flex flex-column gap-2 xs-center text-md-left">
                   <a href="#" className="text-gray-600 d-flex align-items-center gap-2 justify-content-md-start justify-content-center">
                     <i className="bi bi-envelope-fill"></i>
-                    <span>contact@24jobs.com</span>
+                    <span>contact@24jobs.net</span>
                   </a>
                   <a href="#" className="text-gray-600 d-flex align-items-center gap-2 justify-content-md-start justify-content-center">
                     <i className="bi bi-telephone-fill"></i>
-                    <span>+1 (800) 555-2468</span>
+                    <span>+1(218)630-8568</span>
                   </a>
                 </div>
               </div>
