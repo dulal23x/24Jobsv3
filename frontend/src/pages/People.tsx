@@ -5,8 +5,12 @@ import {
   MapPin, 
   Download,
   Mail,
-  Phone
+  Phone,
+  Facebook,
+  Twitter,
+  Linkedin
 } from "lucide-react";
+import Footer24Jobs from "../components/Footer24Jobs";
 
 // Mock data for demonstration purposes
 const MOCK_PEOPLE = [
@@ -504,7 +508,7 @@ export default function People() {
                               <Phone size={13} className="text-gray-500 mr-2" />
                               <div className={`px-2.5 py-1 rounded-md ${canViewContactInfo(person.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm`}>
                                 {canViewContactInfo(person.id) ? person.phone.full : person.phone.hidden}
-                              </div>
+                                </div>
                               </div>
                             </div>
                             
@@ -674,7 +678,7 @@ export default function People() {
           </div>
         </div>
       </main>
-      {/* <Footer /> */}
+      <Footer24Jobs />
     </div>
   );
 }

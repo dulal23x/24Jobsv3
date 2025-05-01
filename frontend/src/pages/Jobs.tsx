@@ -104,7 +104,7 @@ Min USD $100,000.00/Yr Max USD $118,000.00/Yr Qualifications:
   };
   
   return (
-    <div className="container-fluid bg-light py-3 px-4" style={{ minHeight: '100vh' }}>
+    <div className="container bg-light py-3 px-3 px-lg-5" style={{ minHeight: '100vh' }}>
       {/* Search Bar */}
       <div className="row mb-4 justify-content-center">
         <div className="col-12 col-lg-10">
@@ -176,8 +176,8 @@ Min USD $100,000.00/Yr Max USD $118,000.00/Yr Qualifications:
       <div className="row mb-3 justify-content-center">
         <div className="col-12 col-lg-10">
           <div className="d-flex align-items-center justify-content-between">
-            <p className="mb-0 text-primary" style={{ fontSize: '14px' }}>
-              <span className="fw-bold">Upload your resume</span> - Let employers find you
+            <p className="mb-0 text-primary text-black" style={{ fontSize: '14px' }}>
+              <span className="fw-bold ">Upload your resume</span> - Let employers find you
             </p>
             <div style={{ fontSize: '13px' }}>
               <span className="me-3 text-muted">SEO jobs in Remote</span>
@@ -206,12 +206,13 @@ Min USD $100,000.00/Yr Max USD $118,000.00/Yr Qualifications:
                   {displayData.data.map((job, index) => (
                     <div 
                       key={job.id || index} 
-                      className={`card mb-2 border ${selectedJob?.id === job.id ? 'border-primary' : 'border-light'}`}
+                      className={`card mb-2 border`}
                       onClick={() => handleJobSelect(job)}
                       style={{ 
                         cursor: 'pointer',
                         borderRadius: '8px',
-                        boxShadow: selectedJob?.id === job.id ? '0 0 0 1px #0d6efd, 0 2px 8px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.05)',
+                        border: selectedJob?.id === job.id ? '2px solid #000' : '1px solid #000',
+                        boxShadow: selectedJob?.id === job.id ? '0 0 0 1px #000, 0 2px 8px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.05)',
                         transition: 'all 0.2s ease'
                       }}
                     >

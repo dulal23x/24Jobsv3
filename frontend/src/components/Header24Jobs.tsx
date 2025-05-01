@@ -66,7 +66,7 @@ export default function Header24Jobs() {
           </div>
           
           {/* Centered Navigation - Desktop - Adjusted for better alignment and icon size */}
-          <nav className="d-none d-lg-flex align-items-center justify-content-center flex-grow-1 gap-5 mx-4">
+          <nav className="d-none d-lg-flex align-items-center justify-content-center  flex-grow-1 gap-5 mx-4">
             <Link href="/jobs">
               <div className={`header-nav-item d-flex align-items-center ${location === '/jobs' ? 'active' : ''}`} style={{ padding: '8px 12px' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="me-2" viewBox="0 0 16 16">
@@ -118,17 +118,17 @@ export default function Header24Jobs() {
                 <div className="position-absolute bg-white shadow rounded mt-1" style={{ width: '200px', zIndex: 1000, left: '50%', transform: 'translateX(-50%)' }}>
                   <div className="py-1">
                     <Link href="/employer">
-                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6">
+                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6 text-black">
                         Employer Dashboard
                       </div>
                     </Link>
                     <Link href="/employer/post-job">
-                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6">
+                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6 text-black">
                         Post a Job
                       </div>
                     </Link>
                     <Link href="/employer/pricing">
-                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6">
+                      <div className="dropdown-item px-3 py-2 text-decoration-none hover-bg-light cursor-pointer fs-6 text-black">
                         Pricing
                       </div>
                     </Link>
@@ -283,16 +283,16 @@ export default function Header24Jobs() {
       <div className={`d-lg-none bg-white border-top shadow-sm ${mobileMenuOpen ? 'd-block' : 'd-none'}`}>
         <nav className="container py-3 d-flex flex-column gap-2">
           <Link href="/jobs">
-            <a className={`mobile-nav-link ${location === '/jobs' ? 'active' : ''}`}>Jobs</a>
+            <a className={`mobile-nav-link ${location === '/jobs' ? 'active' : ''} text-black`} style={{color:'#000'}}>Jobs</a>
           </Link>
           <Link href="/people">
-            <a className={`mobile-nav-link ${location === '/people' ? 'active' : ''}`}>People</a>
+            <a className={`mobile-nav-link ${location === '/people' ? 'active' : ''} text-black`} style={{color:'#000'}}>People</a>
           </Link>
           <Link href="/companies">
-            <a className={`mobile-nav-link ${location === '/companies' ? 'active' : ''}`}>Companies</a>
+            <a className={`mobile-nav-link ${location === '/companies' ? 'active' : ''} text-black`} style={{color:'#000'}}>Companies</a>
           </Link>
           <Link href="/employer">
-            <a className={`mobile-nav-link ${location.startsWith('/employer') ? 'active' : ''}`}>For Employers</a>
+            <a className={`mobile-nav-link ${location.startsWith('/employer') ? 'active' : ''} text-black`} style={{color:'#000'}}>For Employers</a>
           </Link>
           
           <div className="d-flex gap-2 mt-3 pt-3 border-top">
@@ -312,7 +312,7 @@ export default function Header24Jobs() {
           display: flex;
           align-items: center;
           padding: 8px 0; /* Reduced vertical padding */
-          color: #4B5563; /* Default text color */
+          color: #000; /* Default text color: black */
           text-decoration: none;
           position: relative; /* Needed for the indicator */
           transition: color 0.2s ease-in-out;
@@ -340,7 +340,7 @@ export default function Header24Jobs() {
           display: block;
           padding: 10px 15px;
           text-decoration: none;
-          color: #333;
+          color: #000;
           font-weight: 500;
           border-radius: 6px;
           transition: background-color 0.2s ease;

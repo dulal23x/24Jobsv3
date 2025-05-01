@@ -11,35 +11,30 @@ export default function Home() {
             {/* বাম পাশে হেডলাইন, সাবহেড, বাটন, ইউজার এভাটার ও রেটিং */}
             <div className="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
               <div className="mb-3">
-                <span className="d-inline-flex align-items-center text-primary mb-2 fw-medium" style={{ fontSize: '1.1rem' }}>
-                  <svg className="me-2" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#0073B1"/>
-                  </svg>
-                  Professional Networking
-                </span>
+                
               </div>
-              <h1 className="display-3 font-[400] mb-3 lh-sm text-[56px]">
+              <h1 className="display-3 font-[400] mb-3  text-[56px]">
                 Unlock Your<br/>
                 <span className="d-block">Professional</span>
                 <span className="text-primary d-block my-1">Potential</span>
                 with 24Jobs
               </h1>
-              <p className="lead text-muted mb-4 text-[22px] mx-auto mx-lg-0" style={{ maxWidth: '540px' }}>
+              <p className="lead text-muted mb-4 text-[20px] mx-auto mx-lg-0" style={{ maxWidth: '520px' }}>
                 Build your network, discover opportunities, and advance your career with the professional community that puts your growth first.
               </p>
               
               <div className="d-flex gap-3 mb-5 justify-content-center justify-content-lg-start flex-wrap">
                 <Link href="/join">
-                  <button className="btn btn-primary btn-lg px-4 py-3 rounded-pill fs-5 shadow-sm transition-all" 
-                    style={{ minWidth: '200px', transform: 'translateY(0)', transition: 'all 0.3s ease' }}
+                  <button className="btn btn-primary btn-lg px-3 py-2 rounded-pill fs-5 shadow-sm transition-all" 
+                    style={{ minWidth: '180px', transform: 'translateY(0)', transition: 'all 0.3s ease' }}
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-3px)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                   >
                     Join Now
                   </button>
                 </Link>
-                <button className="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill fs-5 transition-all"
-                  style={{ minWidth: '200px', transition: 'all 0.3s ease' }}
+                <button className="btn btn-outline-primary btn-lg px-3 py-2 rounded-pill fs-5 transition-all"
+                  style={{ minWidth: '180px', transition: 'all 0.3s ease' }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'rgba(0, 115, 177, 0.1)';
                     e.currentTarget.style.borderColor = '#0073B1';
@@ -52,7 +47,7 @@ export default function Home() {
                   Learn more
                 </button>
               </div>
-              
+              {/* hero rightside image */}
               <div className="d-flex align-items-center justify-content-center justify-content-lg-start mb-4">
                 <div className="d-flex me-3">
                   <img 
@@ -86,7 +81,7 @@ export default function Home() {
 
              {/* ডান পাশে হিরো ইমেজ, টেস্টিমোনিয়াল কার্ড ও ব্যাজ */}
             <div className="col-lg-6 position-relative">
-              <div className="position-relative text-center">
+              <div className="position-relative text-center" style={{ top: '-80px' }}>
                 <img 
                   src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" 
                   alt="Professional networking" 
@@ -139,10 +134,10 @@ export default function Home() {
                      }}
                 >
                   <div className="d-flex align-items-center gap-2 fs-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-briefcase-fill" viewBox="0 0 16 16">
-                      <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13A1.5 1.5 0 0 0 16 12.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a.5.5 0 0 0 .372 0z"/>
-                      <path d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z"/>
-                    </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                  <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v1.384l7.614 2.03a1.5 1.5 0 0 0 .772 0L16 5.884V4.5A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5z"/>
+                  <path d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z"/>
+                </svg>
                     <span className='text-[12px]'>10K+ Jobs Available</span>
                   </div>
                 </div>
@@ -160,10 +155,11 @@ export default function Home() {
                      }}
                 >
                   <div className="d-flex align-items-center gap-2 fs-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-briefcase-fill" viewBox="0 0 16 16">
-                      <path d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13A1.5 1.5 0 0 0 16 12.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a.5.5 0 0 0 .372 0z"/>
-                      <path d="M0 12.5A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5V6.85L8.129 8.947a.5.5 0 0 1-.258 0L0 6.85v5.65z"/>
-                    </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1">
+                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                  <line x1="3" x2="21" y1="9" y2="9"></line>
+                  <line x1="9" x2="9" y1="21" y2="9"></line>
+                </svg>
                     <span className='text-[12px]'>Connected with 25K+ companies
                     </span>
                   </div>
