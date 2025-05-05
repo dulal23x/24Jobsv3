@@ -1,23 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Link } from "wouter";
 import { 
-  Search, MapPin, Download, Mail, Phone, Briefcase, Building,
-  SlidersHorizontal, Star, X, ChevronDown, ChevronLeft, Filter,
-} from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext'; // Import your auth hook
-import { toast } from 'sonner'; // Example: using sonner for notifications
+  Search, 
+  MapPin, 
+  Download,
+  Mail,
+  Phone,
+  Facebook,
+  Twitter,
+  Linkedin
+} from "lucide-react";
+import Footer24Jobs from "../components/Footer24Jobs";
 
 // Mock data for demonstration purposes
 const MOCK_PEOPLE = [
@@ -227,488 +220,465 @@ interface Company {
   };
 }
 
-// --- Filter State Interface ---
-interface Filters {
-  // Define keys matching your backend query parameters
-  name_query: string; // e.g., search term for name/title/company
-  location_query: string;
-  title_query: string;
-  company_query: string;
-  industry_query: string;
-  skills_query: string;
-  // Add others: e.g., min_employees, max_employees, revenue_min, etc.
-}
-
 export default function People() {
+  // Tab state
   const [activeTab, setActiveTab] = useState<'people' | 'companies'>('people');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [filters, setFilters] = useState<Partial<Filters>>({}); // Use Partial for optional filters
-  const [activeFilterBadges, setActiveFilterBadges] = useState<{ key: keyof Filters; value: string }[]>([]);
-
-  // --- Data States (Initially empty, fetched via API) ---
-  const [peopleResults, setPeopleResults] = useState<Person[]>(MOCK_PEOPLE); // Replace MOCK_PEOPLE with []
-  const [companyResults, setCompanyResults] = useState<Company[]>(MOCK_COMPANIES); // Replace MOCK_COMPANIES with []
-  const [totalPeopleCount, setTotalPeopleCount] = useState(0); // For displaying total results
-  const [totalCompanyCount, setTotalCompanyCount] = useState(0);
-
-  // --- Interaction States ---
+  
+  // People tab state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredPeople, setFilteredPeople] = useState<Person[]>(MOCK_PEOPLE);
   const [connectedPeople, setConnectedPeople] = useState<Set<number>>(new Set());
-  const [showContactInfo, setShowContactInfo] = useState<Record<number, boolean>>({}); // Use Record for individual unlock status
+  const [showContactInfo, setShowContactInfo] = useState<Set<number>>(new Set());
+  
+  // Companies tab state
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>(MOCK_COMPANIES);
+  const [companySearchTerm, setCompanySearchTerm] = useState("");
   const [followedCompanies, setFollowedCompanies] = useState<Set<number>>(new Set());
-  const [showCompanyInfo, setShowCompanyInfo] = useState<Record<number, boolean>>({});
-
-  const { user, updateLocalCredits } = useAuth(); // Get user data and update function from context
-
-  // --- API Fetching State (Example with react-query - install @tanstack/react-query) ---
-  // const { data: apiData, isLoading, error, refetch } = useQuery({
-  //   queryKey: ['searchResults', activeTab, filters], // Key includes filters to trigger refetch
-  //   queryFn: async () => {
-  //     const endpoint = activeTab === 'people' ? '/api/people/' : '/api/companies/';
-  //     const params = new URLSearchParams(filters as Record<string, string>).toString();
-  //     const response = await fetch(`${endpoint}?${params}`); // Replace with your API base URL
-  //     if (!response.ok) throw new Error('Network response was not ok');
-  //     return response.json();
-  //   },
-  //   enabled: false, // Initially disable query, trigger manually or on filter change
-  // });
-
-  // --- Effect to Update Results from API Data (Example) ---
-  // useEffect(() => {
-  //   if (apiData) {
-  //     if (activeTab === 'people') {
-  //       setPeopleResults(apiData.results || []); // Adjust based on your API response structure
-  //       setTotalPeopleCount(apiData.count || 0);
-  //     } else {
-  //       setCompanyResults(apiData.results || []);
-  //       setTotalCompanyCount(apiData.count || 0);
-  //     }
-  //   }
-  // }, [apiData, activeTab]);
-
-  // --- Effect to Update Badges when Filters Change ---
-  useEffect(() => {
-    const badges = Object.entries(filters)
-      .filter(([, value]) => value !== "" && value !== undefined && value !== null)
-      .map(([key, value]) => ({ key: key as keyof Filters, value: String(value) }));
-    setActiveFilterBadges(badges);
-  }, [filters]);
-
-  // --- Handlers ---
-  const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    // Optional: Trigger API refetch here if not using a separate Apply button
-    // refetch();
+  const [showCompanyInfo, setShowCompanyInfo] = useState<Set<number>>(new Set());
+  
+  // People tab handlers
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Apply search term filter
+    let filtered = MOCK_PEOPLE;
+    if (searchTerm) {
+      filtered = filtered.filter(person => 
+        person.firstName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        person.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        person.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        person.position.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredPeople(filtered);
   };
 
-  const clearFilter = (key: keyof Filters) => {
-    setFilters((prev) => {
-      const newFilters = { ...prev };
-      delete newFilters[key]; // Remove the key entirely
-      return newFilters;
+  const handleConnect = (personId: number) => {
+    setConnectedPeople(prev => {
+      const updated = new Set(prev);
+      updated.add(personId);
+      return updated;
     });
-    // Optional: Trigger API refetch
-    // refetch();
   };
 
-  const clearAllFilters = () => {
-    setFilters({});
-    // Optional: Trigger API refetch
-    // refetch();
+  const handleGetContactInfo = (personId: number) => {
+    setShowContactInfo(prev => {
+      const updated = new Set(prev);
+      updated.add(personId);
+      return updated;
+    });
   };
 
-  const handleApplyFilters = () => {
-    // Manually trigger the API refetch if needed
-    // refetch();
-    console.log("Applying filters:", filters);
-    // For mock data: Apply filters directly (as done in previous example's useEffect)
-    // --- MOCK FILTERING LOGIC START ---
-    let people = MOCK_PEOPLE.filter(p =>
-        (!filters.name_query || `${p.firstName} ${p.lastName}`.toLowerCase().includes(filters.name_query.toLowerCase())) &&
-        (!filters.location_query || p.location.toLowerCase().includes(filters.location_query.toLowerCase())) &&
-        (!filters.title_query || p.position.toLowerCase().includes(filters.title_query.toLowerCase())) &&
-        (!filters.company_query || p.company.toLowerCase().includes(filters.company_query.toLowerCase()))
-        // Add other filter checks
-    );
-    setPeopleResults(people);
-    setTotalPeopleCount(people.length);
-
-     let companies = MOCK_COMPANIES.filter(c =>
-        (!filters.company_query || c.name.toLowerCase().includes(filters.company_query.toLowerCase())) &&
-        (!filters.location_query || c.location.toLowerCase().includes(filters.location_query.toLowerCase())) &&
-        (!filters.industry_query || c.industry.toLowerCase().includes(filters.industry_query.toLowerCase()))
-        // Add other filter checks
-    );
-    setCompanyResults(companies);
-    setTotalCompanyCount(companies.length);
-    // --- MOCK FILTERING LOGIC END ---
+  const isConnected = (personId: number) => connectedPeople.has(personId);
+  const canViewContactInfo = (personId: number) => isConnected(personId) || showContactInfo.has(personId);
+  
+  // Companies tab handlers
+  const handleCompanySearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    let filtered = MOCK_COMPANIES;
+    if (companySearchTerm) {
+      filtered = filtered.filter(company => 
+        company.name.toLowerCase().includes(companySearchTerm.toLowerCase()) || 
+        company.industry.toLowerCase().includes(companySearchTerm.toLowerCase()) ||
+        company.description.toLowerCase().includes(companySearchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredCompanies(filtered);
   };
-
-
-  // --- UNLOCKING LOGIC (Updated) ---
-  const handleUnlockContact = async (personId: number) => {
-      if (showContactInfo[personId]) return;  // Already unlocked
-
-      if (!user) {
-          toast.error("Please log in to unlock contacts.");
-          return;
-      }
-      if (user.credits_remaining <= 0) {
-          toast.error("You have no credits remaining.");
-          return;
-      }
-
-      console.log(`Attempting to unlock contact for person ID: ${personId}`);
-
-      // DEV MODE: Mock the API response for testing
-      if (process.env.NODE_ENV === 'development') {
-          // Simulate a successful response with mock data
-          const mockUnlockedData = {
-              email: { full: "mock@example.com" },  // Replace with actual mock based on your data
-              phone: { full: "123-456-7890" },
-          };
-
-          // Update state as if the API succeeded
-          setPeopleResults(prevResults =>
-              prevResults.map(p =>
-                  p.id === personId ? { ...p, email: mockUnlockedData.email, phone: mockUnlockedData.phone } : p
-              )
-          );
-          setShowContactInfo(prev => ({ ...prev, [personId]: true }));
-          updateLocalCredits(user.credits_remaining - 1);  // Decrement credits
-          toast.success("Contact unlocked successfully (dev mock)!");
-          return;
-      }
-
-      // Original API call for production
-      try {
-          const response = await fetch(`/api/people/${personId}/unlock/`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' /* Add auth headers if needed */ },
-          });
-          if (response.ok) {
-              const unlockedData = await response.json();
-              setPeopleResults(prevResults =>
-                  prevResults.map(p =>
-                      p.id === personId ? { ...p, email: unlockedData.email, phone: unlockedData.phone } : p
-                  )
-              );
-              setShowContactInfo(prev => ({ ...prev, [personId]: true }));
-              updateLocalCredits(user.credits_remaining - 1);
-              toast.success("Contact unlocked successfully!");
-          } else {
-              const errorData = await response.json();
-              toast.error("Failed to unlock contact.");
-          }
-      } catch (error) {
-          console.error(error);
-          toast.error("An error occurred.");
-      }
+  
+  const handleFollow = (companyId: number) => {
+    setFollowedCompanies(prev => {
+      const updated = new Set(prev);
+      updated.add(companyId);
+      return updated;
+    });
   };
-
-
-  // --- Filter Definitions ---
-  const personFilterGroups = [
-     { groupName: "Name", facets: [{ key: "name_query", displayName: "Name", placeholder: "Enter name..." }] },
-     { groupName: "Location", facets: [{ key: "location_query", displayName: "Location", placeholder: "City, State, Country..." }] },
-     { groupName: "Occupation", facets: [
-         { key: "title_query", displayName: "Job Title", placeholder: "Enter job title..." },
-         // { key: "department_query", displayName: "Department", placeholder: "e.g., Marketing" },
-         // { key: "skills_query", displayName: "Skills", placeholder: "e.g., React, Python" },
-         // { key: "years_experience_min", displayName: "Min Experience", type: "number", placeholder: "Min Years" },
-         // { key: "years_experience_max", displayName: "Max Experience", type: "number", placeholder: "Max Years" },
-     ]},
-     { groupName: "Employer", facets: [
-         { key: "company_query", displayName: "Company Name or Domain", placeholder: "Enter company..." },
-         { key: "industry_query", displayName: "Industry", placeholder: "e.g., Technology" },
-         // { key: "company_size_min", displayName: "Min Employees", type: "number" },
-         // { key: "company_size_max", displayName: "Max Employees", type: "number" },
-         // { key: "company_revenue_min", displayName: "Min Revenue ($M)", type: "number" },
-         // { key: "company_revenue_max", displayName: "Max Revenue ($M)", type: "number" },
-     ]},
-      // { groupName: "Education", facets: [...] },
-      // { groupName: "Contact Info", facets: [...] }, // Maybe checkboxes: Has Email, Has Phone
-  ];
-
-   const companyFilterGroups = [
-       { groupName: "Company", facets: [{ key: "company_query", displayName: "Company Name or Domain", placeholder: "Enter company..." }] },
-       { groupName: "Location", facets: [{ key: "location_query", displayName: "Location", placeholder: "City, State, Country..." }] },
-       { groupName: "Industry", facets: [{ key: "industry_query", displayName: "Industry", placeholder: "e.g., Technology" }] },
-       // Add more company-specific filters (size, revenue, etc.)
-   ];
-
-  const currentFilterGroups = activeTab === 'people' ? personFilterGroups : companyFilterGroups;
-  const currentResults = activeTab === 'people' ? peopleResults : companyResults;
-  const currentTotalCount = activeTab === 'people' ? totalPeopleCount : totalCompanyCount;
-
+  
+  const handleGetCompanyInfo = (companyId: number) => {
+    setShowCompanyInfo(prev => {
+      const updated = new Set(prev);
+      updated.add(companyId);
+      return updated;
+    });
+  };
+  
+  const isFollowing = (companyId: number) => followedCompanies.has(companyId);
+  const canViewCompanyInfo = (companyId: number) => isFollowing(companyId) || showCompanyInfo.has(companyId);
 
   return (
-    <div className="min-h-screen flex flex-col font-inter text-gray-800 bg-gray-100">
-      {/* Header might be global */}
-      <main className="flex-grow">
-        <div className="container mx-auto max-w-screen-xl px-4 md:px-6 py-6">
-          {/* Top Tabs */}
-          <div className="flex mb-5 bg-white border border-gray-200 rounded-full w-auto sm:w-72 p-1 shadow-sm mx-auto sm:mx-0">
-            {/* People/Companies Tab Buttons */}
+    <div className="min-h-screen flex flex-col font-inter text-text-primary">
+      {/* <Header /> */}
+      <main>
+        <div className="container mx-auto max-w-[1180px] px-2 sm:px-4 md:px-6 py-4 md:py-8">
+          {/* Top tabs for People/Companies */}
+          <div className="flex mb-4 md:mb-6 bg-gray-100 rounded-full w-full max-w-xs md:max-w-sm p-1 shadow-sm">
             <button 
-               className={`flex-1 py-2 px-4 rounded-full font-medium text-sm transition-all duration-200 ease-in-out ${
-                 activeTab === "people"
-                   ? "bg-blue-600 text-white shadow-md"
-                   : "text-gray-600 hover:bg-gray-100"
-               }`}
-               onClick={() => setActiveTab("people")}
+              className={`flex-1 py-2.5 px-5 rounded-full font-medium text-sm transition-all ${
+                activeTab === 'people' 
+                  ? 'bg-[#3c5aa8] text-white hover:bg-[#2c4a98]' 
+                  : 'text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('people')}
             >
               People
             </button>
             <button 
-               className={`flex-1 py-2 px-4 rounded-full font-medium text-sm transition-all duration-200 ease-in-out ${
-                 activeTab === "companies"
-                   ? "bg-blue-600 text-white shadow-md"
-                   : "text-gray-600 hover:bg-gray-100"
-               }`}
-               onClick={() => setActiveTab("companies")}
+              className={`flex-1 py-2.5 px-5 rounded-full font-medium text-sm transition-all ${
+                activeTab === 'companies' 
+                  ? 'bg-[#3c5aa8] text-white hover:bg-[#2c4a98]' 
+                  : 'text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('companies')}
             >
               Companies
             </button>
           </div>
           
-          {/* Main Layout Grid */}
-          <div className={cn(
-            "grid grid-cols-1 gap-6 transition-[grid-template-columns] duration-300 ease-in-out",
-            sidebarCollapsed ? 'md:grid-cols-[auto_1fr]' : 'md:grid-cols-[280px_1fr]' // Adjust width as needed
-          )}>
-
-            {/* --- Left Sidebar (Filters) --- */}
-            <aside className={cn(
-              "bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-300 ease-in-out",
-              sidebarCollapsed ? 'w-16 p-3' : 'w-full p-4' // Adjust collapsed width/padding
-            )}>
-              {sidebarCollapsed ? (
-                // -- Collapsed Sidebar View --
-                 <div className="flex flex-col items-center gap-4">
-                   <Button variant="ghost" size="icon" onClick={() => setSidebarCollapsed(false)} className="mb-2 text-gray-600 hover:bg-gray-100">
-                     <ChevronLeft size={20} /> {/* Pointing left to expand */}
-                   </Button>
-                   <div className="flex flex-col items-center gap-5">
-                     <Button variant="ghost" size="icon" className="text-gray-500 relative" title="Saved Searches">
-                        <Star size={20} />
-                        {/* Add count badge if needed */}
-                     </Button>
-                     <Button variant="ghost" size="icon" className="text-gray-500 relative" title="Active Filters">
-                       <Filter size={20} className={activeFilterBadges.length > 0 ? 'text-blue-600' : ''}/>
-                       {activeFilterBadges.length > 0 && (
-                         <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                           {activeFilterBadges.length}
-                         </span>
-                       )}
-                     </Button>
-                      {/* Add other collapsed icons if needed */}
-                   </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+            {/* Left sidebar with filters */}
+            <div className="md:col-span-1 mb-4 md:mb-0">
+              <div className="border border-gray-200 rounded-lg mb-5 shadow-sm hover:border-gray-300 transition-all">
+                <button className="w-full py-3.5 px-4 text-left text-gray-700 font-medium text-sm">
+                  Saved Searches
+                </button>
               </div>
-              ) : (
-                 // -- Expanded Sidebar View --
-                <div className="flex flex-col h-full">
-                  {/* Header */}
-                  <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
-                     <h2 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                        <Filter size={16} /> Filters
-                     </h2>
-                     <Button variant="ghost" size="icon" onClick={() => setSidebarCollapsed(true)} className="text-gray-500 hover:bg-gray-100 h-7 w-7">
-                       <ChevronDown size={18} /> {/* Or ChevronLeft */}
-                     </Button>
+              
+              <div className="mb-5">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-sm font-medium text-gray-700">Search Filters</h3>
+                  <button className="text-[#0D6EF7] text-xs hover:underline">Clear All</button>
               </div>
                 
-                  {/* Scrollable Area for Filters */}
-                  <ScrollArea className="flex-grow pr-3 -mr-3 mb-4"> {/* Negative margin hides scrollbar slightly */}
-                      {/* Saved Searches */}
-                      <Accordion type="single" collapsible className="w-full mb-4">
-                        <AccordionItem value="saved-searches" className="border-none">
-                          <AccordionTrigger className="py-1.5 px-1 text-sm font-medium text-gray-700 hover:no-underline hover:bg-gray-50 rounded data-[state=closed]:opacity-80">
-                            <div className="flex items-center gap-2">
-                              <Star size={16} className="text-yellow-500"/> Saved Searches
+                <div className="flex items-center bg-blue-50 rounded-md px-2.5 py-1.5 mb-4 w-fit shadow-sm">
+                  <Search size={12} className="text-[#0D6EF7] mr-1.5" />
+                  <span className="text-xs text-gray-700">john</span>
+                  <button className="ml-1.5 text-[#0D6EF7] hover:text-[#0A56C4] font-medium">×</button>
             </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pt-2 pb-0 px-1 text-xs text-gray-500">
-                            You have no saved searches yet.
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-
-                      {/* Active Filters */}
-                      <div className="mb-4 px-1">
-                         <div className="flex justify-between items-center mb-1.5">
-                           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Active Filters</h3>
-                           {activeFilterBadges.length > 0 && (
-                             <Button variant="link" size="sm" className="text-blue-600 h-auto p-0 text-xs" onClick={clearAllFilters}>
-                               Clear All
-                             </Button>
-                           )}
+            
+                {/* Filter Accordion Items */}
+                <div className="space-y-0 rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-6">
+                  {[
+                    "Name",
+                    "Location",
+                    "Occupation",
+                    "Role & Department",
+                    "Skills",
+                    "Years of Experience",
+                    "Healthcare",
+                    "Employer",
+                    "Company Name or Domain",
+                    "Intent"
+                  ].map((filter, index) => (
+                    <button 
+                      key={filter} 
+                      className={`w-full flex justify-between items-center py-3 px-4 border-b border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors ${index === 2 || index === 7 ? 'bg-gray-50' : ''}`}
+                    >
+                      {filter}
+                      {index === 2 || index === 7 ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 transform rotate-180">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      )}
+                    </button>
+                  ))}
               </div>
-                         {activeFilterBadges.length > 0 ? (
-                           <div className="flex flex-wrap gap-1.5">
-                             {activeFilterBadges.map((badge) => (
-                               <div key={badge.key} className="flex items-center bg-blue-100 text-blue-800 text-xs font-medium pl-2 pr-1 py-0.5 rounded-full">
-                                 <span>{badge.value}</span>
-                                 <button onClick={() => clearFilter(badge.key)} className="ml-1 text-blue-500 hover:text-blue-700 rounded-full hover:bg-blue-200 p-0.5">
-                                   <X size={12} strokeWidth={2.5}/>
+                
+                {/* Bottom Action Buttons */}
+                <div className="space-y-3">
+                  <button className="w-full py-3.5 bg-[#3c5aa8] text-white rounded-md font-medium shadow-sm hover:bg-[#2c4a98] transition-colors">
+                    Save This Search
+                  </button>
+                  <button className="w-full py-3.5 bg-[#4CAF50] text-white rounded-md font-medium shadow-sm hover:bg-[#43a047] transition-colors flex items-center justify-center">
+                    <span className="mr-1.5">Start New Autopilot</span>
+                    <span className="text-xs px-1.5 py-0.5 bg-white text-green-600 rounded font-medium">Beta</span>
                   </button>
               </div>
-                             ))}
               </div>
-                         ) : (
-                           <p className="text-xs text-gray-400 italic">No filters applied.</p>
-                         )}
             </div>
             
-                      {/* Filter Accordions */}
-                      <Accordion type="multiple" defaultValue={currentFilterGroups.map(g => g.groupName)} className="w-full space-y-1">
-                        {currentFilterGroups.map((group) => (
-                          <AccordionItem value={group.groupName} key={group.groupName} className="border border-gray-200 rounded-md overflow-hidden bg-white">
-                            <AccordionTrigger className="py-2 px-3 text-sm font-medium hover:bg-gray-50 hover:no-underline data-[state=open]:border-b data-[state=open]:bg-gray-50">
-                               {group.groupName}
-                            </AccordionTrigger>
-                            <AccordionContent className="p-3 space-y-3 text-sm">
-                              {group.facets.map((facet) => (
-                                 <div key={facet.key}>
-                                   <Label htmlFor={facet.key} className="text-xs font-medium text-gray-600 mb-1 block">{facet.displayName}</Label>
-                                   {/* Add more input types here (Select, Range Slider, Checkbox group) based on facet.type */}
-                                   <Input
-                                       id={facet.key}
-                                       type={facet.type === 'number' ? 'number' : 'search'}
-                                       placeholder={facet.placeholder}
-                                       value={filters[facet.key as keyof Filters] || ""}
-                                       onChange={(e) => handleFilterChange(facet.key as keyof Filters, e.target.value)}
-                                       className="h-8 text-sm" // Smaller input
-                                   />
+            {/* Main content area */}
+            <div className="md:col-span-3">
+              {activeTab === 'people' ? (
+                <>
+                  {/* People Search Form */}
+                  <div className="bg-white rounded-lg shadow-md mb-6 hover:shadow-lg transition-shadow">
+                    <div className="border-b border-gray-200 px-6 py-4">
+                      <h1 className="text-lg font-medium text-gray-800">People Search</h1>
               </div>
-                              ))}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                  </ScrollArea> {/* End Scroll Area */}
-
-                   {/* Action Buttons */}
-                   <div className="mt-auto border-t pt-3 space-y-2"> {/* mt-auto pushes to bottom */}
-                     <Button className="w-full bg-blue-600 hover:bg-blue-700 h-9 text-sm" onClick={handleApplyFilters}>
-                        Apply Filters
-                     </Button>
-                     <Button variant="outline" className="w-full h-9 text-sm">
-                       <Star size={14} className="mr-1.5"/> Save Search
-                     </Button>
+                    
+                    <div className="px-2 md:px-6 py-5">
+                      <form onSubmit={handleSearch}>
+                        {/* Search button removed as requested */}
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-600 italic">
+                            Use the filters on the left to refine your search
               </div>
             </div>
-              )}
-            </aside>
-
-            {/* --- Main content area (Results) --- */}
-            <div className="min-w-0"> {/* Needed for grid layout */}
-               {/* Loading/Error States Placeholder */}
-               {/* {isLoading && <p>Loading...</p>} */}
-               {/* {error && <p>Error loading results: {error.message}</p>} */}
-
-               {/* Results Header (Count) */}
-               <div className="mb-3 text-sm text-gray-600">
-                 Showing <span className="font-semibold">{currentResults.length}</span> of <span className="font-semibold">{currentTotalCount}</span> {activeTab}
+                      </form>
+          </div>
+        </div>
+        
+                  {/* People Results Section */}
+                  <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div className="px-2 md:px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 gap-2 md:gap-0">
+              <div>
+                        <h2 className="font-medium text-gray-800">People</h2>
+                        <p className="text-xs text-gray-500 mt-1">Showing <span className="font-medium text-gray-700">{filteredPeople.length}</span> results</p>
+              </div>
+                      <div className="flex items-center gap-2">
+                <button 
+                          className="flex items-center gap-1.5 text-gray-600 border-gray-300 hover:bg-gray-100 transition-colors h-9"
+                >
+                          <Download size={15} />
+                          Export
+                </button>
+              </div>
             </div>
             
-               {/* --- People/Company Cards --- */}
-               {activeTab === 'people' ? (
-                   <div className="bg-white rounded-lg shadow-md border border-gray-200 divide-y divide-gray-200">
-                       {peopleResults.length > 0 ? (
-                           peopleResults.map((person) => (
-                              <div key={person.id} className="p-4 flex items-start gap-4 hover:bg-gray-50/70">
-                                  <Checkbox id={`person-${person.id}`} className="mt-1 flex-shrink-0 border-gray-300"/>
-                                  <img
-                                     src={person.avatar} alt={`${person.firstName} ${person.lastName}`}
-                                     className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm flex-shrink-0"
-                                  />
-                                  <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1 text-sm min-w-0">
-                                      {/* Col 1: Name & Title */}
-                                      <div className="min-w-0">
-                                          <Link href={`/profile/${person.id}`} className="font-semibold text-gray-800 hover:text-blue-600 truncate block">{person.firstName} {person.lastName}</Link>
-                                          <p className="text-gray-600 truncate">{person.position}</p>
-                                          <p className="text-gray-500 mt-0.5 flex items-center text-xs truncate">
-                                              <MapPin size={12} className="mr-1 text-gray-400 flex-shrink-0" />
+                    {/* People List */}
+                    <div>
+                      {filteredPeople.map((person, index) => (
+                        <div 
+                          key={person.id} 
+                          className={`py-4 md:py-5 px-2 md:px-6 flex flex-col md:flex-row items-start md:items-center border-b border-gray-200 ${index % 2 === 1 ? 'bg-gray-50' : ''} hover:bg-blue-50/20 transition-colors gap-3 md:gap-0`}
+                        >
+                          {/* Checkbox */}
+                          <div className="mb-2 md:mb-0 md:mt-1 md:mr-4">
+                            <input type="checkbox" className="rounded border-gray-300 text-[#0D6EF7] focus:ring-[#0D6EF7]" />
+            </div>
+            
+                          {/* Avatar */}
+                          <div className="mb-2 md:mb-0 md:mr-4">
+                            <img 
+                              src={person.avatar} 
+                              alt={`${person.firstName} ${person.lastName}`}
+                              className="w-11 h-11 rounded-full object-cover border border-gray-200 shadow-sm"
+                            />
+              </div>
+                          
+                          {/* Column 1: Name & Details */}
+                          <div className="mb-2 md:mb-0 md:mr-6 min-w-0 flex-1">
+                            <h3 className="text-[15px] md:text-[15px] font-semibold text-gray-800 hover:text-[#0D6EF7] cursor-pointer transition-colors truncate">
+                              {person.firstName} {person.lastName}
+                            </h3>
+                            <p className="text-[13px] text-gray-600 mt-1.5 truncate">
+                              {person.position}
+                            </p>
+                            <p className="text-[12px] text-gray-500 mt-1.5 flex items-center truncate">
+                              <MapPin size={12} className="mr-1.5 text-gray-400" />
                               {person.location}
                             </p>
               </div>
-                                      {/* Col 2: Company */}
-                                      <div className="min-w-0">
-                                          <Link href={`/company/${person.company}`} className="text-blue-600 hover:underline font-medium truncate block">
+                          
+                          {/* Column 2: Company */}
+                          <div className="mb-2 md:mb-0 md:mr-6 min-w-0">
+                            <Link 
+                              href="#" 
+                              className="text-[14px] text-[#0D6EF7] hover:underline font-medium truncate"
+                            >
                               {person.company}
                             </Link>
-                                          {/* Add Company Industry/Size if available */}
+                            <div className="mt-2 inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                              {person.position.split(' ')[0]}
             </div>
-                                      {/* Col 3: Contact Info */}
-                                      <div className="space-y-1">
-                                          <div className="flex items-center text-xs">
-                                              <Mail size={13} className="text-gray-400 mr-1.5 flex-shrink-0" />
-                                              <span className={`px-1.5 py-0.5 rounded ${showContactInfo[person.id] ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-500'} select-all truncate`}>
-                                                  {showContactInfo[person.id] ? person.email.full : `••••${person.email.hidden}`}
-                                              </span>
           </div>
-                                          <div className="flex items-center text-xs">
-                                              <Phone size={13} className="text-gray-400 mr-1.5 flex-shrink-0" />
-                                              <span className={`px-1.5 py-0.5 rounded ${showContactInfo[person.id] ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-500'} select-all truncate`}>
-                                                  {showContactInfo[person.id] ? person.phone.full : person.phone.hidden}
+          
+                          {/* Column 3: Contact & Tags */}
+                          <div className="mb-2 md:mb-0 md:mr-6 flex-1 min-w-0">
+                            <div className="flex items-center mb-2.5">
+                              <Mail size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewContactInfo(person.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm truncate`}>
+                                {canViewContactInfo(person.id) ? 
+                                  person.email.full : 
+                                  <span>
+                                    <span className="text-gray-400 font-medium">•••</span>
+                                    {person.email.hidden}
                                     </span>
+                                }
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <Phone size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewContactInfo(person.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm truncate`}>
+                                {canViewContactInfo(person.id) ? person.phone.full : person.phone.hidden}
                                 </div>
                               </div>
                             </div>
+                            
                           {/* Actions */}
-                                  <div className="flex-shrink-0 ml-2">
-                                      <Button
-                                          size="sm" 
-                                          variant={showContactInfo[person.id] ? "outline" : "default"}
-                                          className={`h-8 text-xs whitespace-nowrap px-3 shadow-sm transition-all duration-150 ${
-                                              showContactInfo[person.id] 
-                                                  ? 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100 cursor-default' 
-                                                  : (user && user.credits_remaining > 0) 
-                                                      ? 'bg-blue-600 hover:bg-blue-700 text-white' // Can unlock
-                                                      : 'bg-gray-400 text-gray-700 cursor-not-allowed' // Cannot unlock (no credits or not logged in)
-                                          }`}
-                                          onClick={() => handleUnlockContact(person.id)}
-                                          disabled={showContactInfo[person.id] || !user || user.credits_remaining <= 0} // Disable if unlocked OR no user OR no credits
-                                      >
-                                          {showContactInfo[person.id] 
-                                              ? 'Unlocked' 
-                                              : `Unlock Contact ${user?.user_type === 'free' ? '(1 Credit)' : ''}` // Show credit cost for free users?
-                                          } 
-                                      </Button>
-                                      {/* Add Connect Button Here if needed */}
+                          <div className="flex items-center w-full md:w-auto mt-2 md:mt-0">
+                                  <button 
+                              className={`h-9 rounded-[10px] text-white px-4 text-sm font-semibold shadow-md transition-all duration-150 whitespace-nowrap w-full md:w-auto
+                                ${canViewContactInfo(person.id) ? (isConnected(person.id) ? 'bg-green-500 hover:bg-green-600' : 'bg-[#1877f2] hover:bg-[#166fe0]') : 'bg-[#1877f2] hover:bg-[#166fe0]'}
+                              `}
+                              style={{boxShadow: '0 2px 8px 0 rgba(24,119,242,0.10)', whiteSpace: 'nowrap'}} 
+                              onClick={() => canViewContactInfo(person.id) ? handleConnect(person.id) : handleGetContactInfo(person.id)}
+                              disabled={isConnected(person.id)}
+                            >
+                              {canViewContactInfo(person.id) ? 
+                                (isConnected(person.id) ? 'Connected' : 'Connect') : 
+                                'View Contact'}
+                            </button>
+                            <button className="ml-3 text-[#0D6EF7] text-sm hover:text-[#0A56C4] underline whitespace-nowrap">
+                              View More
+                                  </button>
                           </div>
                         </div>
-                           ))
-                       ) : (
-                           <p className="p-6 text-center text-gray-500 italic">No people found matching your criteria.</p>
-                       )}
+                      ))}
                     </div>
-               ) : (
-                   <div className="bg-white rounded-lg shadow-md border border-gray-200 divide-y divide-gray-200">
-                       {/* Company Results Rendering (similar structure to people) */}
-                        {companyResults.length > 0 ? (
-                            companyResults.map((company) => (
-                                <div key={company.id} className="p-4 flex items-start gap-4 hover:bg-gray-50/70">
-                                    {/* ... Company card content ... */}
                   </div>
-                            ))
-                        ) : (
-                             <p className="p-6 text-center text-gray-500 italic">No companies found matching your criteria.</p>
-                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                  {/* Companies Search Form */}
+                  <div className="bg-white rounded-lg shadow-md mb-6 hover:shadow-lg transition-shadow">
+                    <div className="border-b border-gray-200 px-6 py-4">
+                      <h1 className="text-lg font-medium text-gray-800">Companies Search</h1>
                               </div>
-               )}
-
-               {/* --- Pagination Placeholder --- */}
-                <div className="mt-6 flex justify-center">
-                    {/* Add Pagination Component Here */}
-                    <p className="text-xs text-gray-500">(Pagination Controls Go Here)</p>
+                    
+                    <div className="px-6 py-5">
+                      <form onSubmit={handleCompanySearch}>
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-600 italic">
+                            Use the filters on the left to refine your company search
+                          </div>
+                        </div>
+                      </form>
+                      </div>
                   </div>
 
-            </div> {/* End Main Content Column */}
-          </div> {/* End Main Grid */}
-        </div> {/* End Container */}
+                  {/* Companies Results Section */}
+                  <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                    <div className="px-2 md:px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 gap-2 md:gap-0">
+                      <div>
+                        <h2 className="font-medium text-gray-800">Companies</h2>
+                        <p className="text-xs text-gray-500 mt-1">Showing <span className="font-medium text-gray-700">{filteredCompanies.length}</span> results</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          className="flex items-center gap-1.5 text-gray-600 border-gray-300 hover:bg-gray-100 transition-colors h-9"
+                        >
+                          <Download size={15} />
+                          Export
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Companies List */}
+                    <div>
+                      {filteredCompanies.map((company, index) => (
+                        <div 
+                          key={company.id} 
+                          className={`py-4 md:py-5 px-2 md:px-6 flex flex-col md:flex-row items-start md:items-center border-b border-gray-200 ${index % 2 === 1 ? 'bg-gray-50' : ''} hover:bg-blue-50/20 transition-colors gap-3 md:gap-0`}
+                        >
+                          {/* Checkbox */}
+                          <div className="mb-2 md:mb-0 md:mt-1 md:mr-4">
+                            <input type="checkbox" className="rounded border-gray-300 text-[#0D6EF7] focus:ring-[#0D6EF7]" />
+                          </div>
+                          
+                          {/* Logo */}
+                          <div className="mb-2 md:mb-0 md:mr-4">
+                            <img 
+                              src={company.logo} 
+                              alt={company.name}
+                              className="w-11 h-11 rounded-md object-cover border border-gray-200 shadow-sm"
+                            />
+                          </div>
+                          
+                          {/* Column 1: Company Details */}
+                          <div className="mb-2 md:mb-0 md:mr-6 min-w-0 flex-1">
+                            <h3 className="text-[15px] md:text-[15px] font-semibold text-gray-800 hover:text-[#0D6EF7] cursor-pointer transition-colors truncate">
+                              {company.name}
+                            </h3>
+                            <p className="text-[13px] text-gray-600 mt-1.5 truncate">
+                              {company.industry}
+                            </p>
+                            <p className="text-[12px] text-gray-500 mt-1.5 flex items-center truncate">
+                              <MapPin size={12} className="mr-1.5 text-gray-400" />
+                              {company.location}
+                            </p>
+                          </div>
+                          
+                          {/* Column 2: Company Info */}
+                          <div className="mb-2 md:mb-0 md:mr-6 min-w-0">
+                            <Link 
+                              href={`https://${company.website}`} 
+                              className="text-[14px] text-[#0D6EF7] hover:underline font-medium truncate"
+                              target="_blank"
+                            >
+                              {company.website}
+                            </Link>
+                            <div className="mt-2 flex items-center gap-2 flex-wrap">
+                              <div className="inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                                {company.size}
+                  </div>
+                              <div className="inline-flex px-2.5 py-1 bg-gray-100 text-xs text-gray-600 rounded-md shadow-sm">
+                                Founded {company.founded}
+          </div>
+        </div>
+      </div>
+      
+                          {/* Column 3: Contact & Info */}
+                          <div className="mb-2 md:mb-0 md:mr-6 flex-1 min-w-0">
+                            <div className="flex items-center mb-2.5">
+                              <Mail size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewCompanyInfo(company.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm truncate`}>
+                                {canViewCompanyInfo(company.id) ? 
+                                  company.contactInfo.email.full : 
+                                  <span>
+                                    <span className="text-gray-400 font-medium">•••</span>
+                                    {company.contactInfo.email.hidden}
+                                  </span>
+                                }
+                              </div>
+        </div>
+                            <div className="flex items-center">
+                              <Phone size={13} className="text-gray-500 mr-2" />
+                              <div className={`px-2.5 py-1 rounded-md ${canViewCompanyInfo(company.id) ? 'bg-blue-50 text-[#0D6EF7]' : 'bg-gray-100 text-gray-500'} text-xs shadow-sm truncate`}>
+                                {canViewCompanyInfo(company.id) ? company.contactInfo.phone.full : company.contactInfo.phone.hidden}
+            </div>
+            </div>
+          </div>
+          
+                          {/* Actions */}
+                          <div className="flex items-center w-full md:w-auto mt-2 md:mt-0">
+                            <button
+                              className={`h-9 rounded-lg text-white px-[12px] text-sm font-medium shadow-sm w-full md:w-auto
+                                ${isFollowing(company.id) 
+                                  ? 'bg-green-500 hover:bg-green-600' 
+                                  : canViewCompanyInfo(company.id) 
+                                    ? 'bg-[#0D6EF7] hover:bg-[#0A56C4]' 
+                                    : 'bg-[#0D6EF7] hover:bg-[#0A56C4]'
+                              }`}
+                              onClick={() => canViewCompanyInfo(company.id) ? handleFollow(company.id) : handleGetCompanyInfo(company.id)}
+                              disabled={isFollowing(company.id)}
+                            >
+                              {canViewCompanyInfo(company.id) ? 
+                                (isFollowing(company.id) ? 'Following' : 'Follow') : 
+                                'View Info'}
+                            </button>
+                            <button className="ml-3 text-[#0D6EF7] text-sm hover:text-[#0A56C4] underline whitespace-nowrap">
+                              View More
+                            </button>
+            </div>
+            </div>
+                      ))}
+            </div>
+          </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </main>
-      {/* Footer might be global */}
+      <Footer24Jobs />
     </div>
   );
 }

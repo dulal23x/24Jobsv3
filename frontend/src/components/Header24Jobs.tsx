@@ -97,6 +97,15 @@ export default function Header24Jobs() {
                 {location === '/companies' && <div className="nav-indicator position-absolute bottom-0 start-0 end-0"></div>}
               </div>
             </Link>
+            <Link href="/blog">
+              <div className={`header-nav-item d-flex align-items-center ${location === '/blog' ? 'active' : ''}`} style={{ padding: '8px 12px' }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="me-2" viewBox="0 0 16 16">
+                  <path d="M.952 1.022a.5.5 0 0 0-.488.084c-.32.207-.466.61-.464.938v11.8c.002.327.147.72.464.938a.5.5 0 0 0 .488.084c.317-.208.46-.603.458-.923V2.028c.002-.32-.14-.715-.458-.923zM12.5 1.5a.5.5 0 0 0-1 0v3a.5.5 0 0 0 1 0v-3zm-2 0a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0v-5zm-2 0a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7zm-2 0a.5.5 0 0 0-1 0v9a.5.5 0 0 0 1 0v-9zm-3.5-.5a.5.5 0 0 0-1 0v13a.5.5 0 0 0 1 0V1z"/>
+                </svg>
+                <span className="nav-text fw-medium fs-6">Blog</span>
+                {location === '/blog' && <div className="nav-indicator position-absolute bottom-0 start-0 end-0"></div>}
+              </div>
+            </Link>
             {/* Employers Dropdown */}
             <div className="position-relative" ref={dropdownRef}>
               <div 
