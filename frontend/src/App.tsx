@@ -15,9 +15,10 @@ import Company from "./pages/Company";
 import NotFound from "./pages/not-found";
 import JobDescription from "./pages/JobDescription";
 import Registration from "./pages/Registration";
-import Test from "./pages/test";
+import Test from "./pages/Test";
 import { AuthProvider } from './contexts/AuthContext';
-
+import Blog from "./pages/Blog";
+import BlogPostDetail from "./pages/BlogPostDetail";
 
 function App() {
   useEffect(() => {
@@ -33,15 +34,17 @@ function App() {
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/jobs" component={Jobs} />
+              <Route path="/job/:id" component={JobDescription} />
               <Route path="/people" component={People} />
               <Route path="/companies" component={Companies} />
+              <Route path="/company/:id" component={Company} />
               <Route path="/company-reviews" component={CompanyReviews} />
               <Route path="/salary" component={Salary} />
               <Route path="/employer" component={Employer} />
-              <Route path="/company/:id" component={Company} />
-              <Route path="/job/:id" component={JobDescription} />
-              <Route path="/join" component={Registration} />
+              <Route path="/registration" component={Registration} />
               <Route path="/test" component={Test} />
+              <Route path="/blog" component={Blog} />
+              <Route path="/blog/:id" component={BlogPostDetail} />
               <Route component={NotFound} />
             </Switch>
           </main>
