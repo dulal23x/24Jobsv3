@@ -226,6 +226,171 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ========== Compatible Workflow Section ========== */}
+      <section className="py-5 bg-white">
+        <div className="container px-4">
+          <div className="row align-items-center my-5">
+            {/* Left: Graphic with Circle & Integrations */}
+            <div className="col-lg-6 position-relative mb-5 mb-lg-0" style={{ minHeight: '480px' }}>
+              {/* Background Circle */}
+              <div className="position-absolute" style={{ 
+                width: '100%', 
+                height: '100%', 
+                maxWidth: '420px',
+                maxHeight: '420px',
+                background: '#0073B1',
+                borderRadius: '50%',
+                opacity: '0.9',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: '0'
+              }}></div>
+              
+              {/* White Card */}
+              <div className="bg-white rounded-4 shadow-lg p-4 position-relative mx-auto" style={{
+                zIndex: '1',
+                maxWidth: '380px',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}>
+                {/* Top Logo */}
+                <div className="text-center mb-4">
+                  <div className="bg-light rounded-circle mx-auto mb-2" style={{ width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="text-muted small">Logo</span>
+                  </div>
+                  <div className="fw-bold text-primary mb-2">24Jobs</div>
+                </div>
+                
+                {/* Connecting Lines */}
+                <div className="position-relative my-4" style={{ height: '40px' }}>
+                  <div className="position-absolute top-0 start-50 translate-middle-x" style={{ width: '2px', height: '100%', background: '#dee2e6' }}></div>
+                  <div className="position-absolute bottom-0 start-10 end-10" style={{ height: '2px', background: '#dee2e6' }}></div>
+                </div>
+                
+                {/* Integration Logos */}
+                <div className="d-flex justify-content-between gap-2">
+                  {/* Integration 1 */}
+                  <div className="text-center bg-white border rounded p-2" style={{ width: '18%' }}>
+                    <div className="bg-primary-subtle rounded mb-1 mx-auto" style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="text-primary small">SF</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '10px' }}>Salesforce</div>
+                  </div>
+                  
+                  {/* Integration 2 */}
+                  <div className="text-center bg-white border rounded p-2" style={{ width: '18%' }}>
+                    <div className="bg-warning-subtle rounded mb-1 mx-auto" style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="text-warning small">HS</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '10px' }}>HubSpot</div>
+                  </div>
+                  
+                  {/* Integration 3 */}
+                  <div className="text-center bg-white border rounded p-2" style={{ width: '18%' }}>
+                    <div className="bg-success-subtle rounded mb-1 mx-auto" style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="text-success small">SL</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '10px' }}>Salesloft</div>
+                  </div>
+                  
+                  {/* Integration 4 */}
+                  <div className="text-center bg-white border rounded p-2" style={{ width: '18%' }}>
+                    <div className="bg-info-subtle rounded mb-1 mx-auto" style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="text-info small">O</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '10px' }}>Outreach</div>
+                  </div>
+                  
+                  {/* Integration 5 */}
+                  <div className="text-center bg-white border rounded p-2" style={{ width: '18%' }}>
+                    <div className="bg-danger-subtle rounded mb-1 mx-auto" style={{ width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="text-danger small">BH</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '10px' }}>Bullhorn</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right: Feature List */}
+            <div className="col-lg-6">
+              <h2 className="fw-bold mb-4 text-primary" style={{ fontSize: '36px' }}>Compatible with any workflow</h2>
+              <ul className="list-unstyled">
+                <li className="d-flex mb-4">
+                  <div className="flex-shrink-0 text-primary me-3 mt-1">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.2l-3.5-3.5 1.41-1.41L9 13.38l7.09-7.09 1.41 1.41z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="fw-bold mb-1" style={{ fontSize: '20px' }}>Integrations</h4>
+                    <p className="text-muted mb-0">
+                      Seamlessly integrate with CRM or marketing automation platforms like Salesforce, HubSpot, and more.
+                    </p>
+                  </div>
+                </li>
+                <li className="d-flex mb-4">
+                  <div className="flex-shrink-0 text-primary me-3 mt-1">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.2l-3.5-3.5 1.41-1.41L9 13.38l7.09-7.09 1.41 1.41z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="fw-bold mb-1" style={{ fontSize: '20px' }}>API</h4>
+                    <p className="text-muted mb-0">
+                      Enrich your data at scale or power your own applications with extensive records, speed, and an exceptional fill rate.
+                    </p>
+                  </div>
+                </li>
+                <li className="d-flex">
+                  <div className="flex-shrink-0 text-primary me-3 mt-1">
+                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.2l-3.5-3.5 1.41-1.41L9 13.38l7.09-7.09 1.41 1.41z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="fw-bold mb-1" style={{ fontSize: '20px' }}>Browser Extension</h4>
+                    <p className="text-muted mb-0">
+                      Save time when you prospect on popular social media sites and discover company connections from any website.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========== Stats Section ========== */}
+      <section className="py-5 bg-primary text-white mt-4">
+        <div className="container px-4 text-center">
+          <p className="lead mb-5">24Jobs, connecting made simple</p>
+          <div className="row justify-content-center">
+            {/* Stat 1 */}
+            <div className="col-md-4 mb-4 mb-md-0 position-relative">
+              <div className="display-4 fw-bold mb-1">10M+</div>
+              <div className="text-white-50">Professional Profiles</div>
+              <div className="d-none d-md-block position-absolute end-0 top-50 translate-middle-y bg-white opacity-25" style={{ width: '1px', height: '60px' }}></div>
+            </div>
+            
+            {/* Stat 2 */}
+            <div className="col-md-4 mb-4 mb-md-0 position-relative">
+              <div className="display-4 fw-bold mb-1">25K+</div>
+              <div className="text-white-50">Companies</div>
+              <div className="d-none d-md-block position-absolute end-0 top-50 translate-middle-y bg-white opacity-25" style={{ width: '1px', height: '60px' }}></div>
+            </div>
+            
+            {/* Stat 3 */}
+            <div className="col-md-4">
+              <div className="display-4 fw-bold mb-1">5K+</div>
+              <div className="text-white-50">Daily Job Postings</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ================= CTA Section ================= */}
       <section className="cta-section-home py-5" style={{ background: 'linear-gradient(135deg, #f3fafd 0%, #f3fafd 100%)' }}>
         <div className="container text-center py-4">
