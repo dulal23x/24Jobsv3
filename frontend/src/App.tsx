@@ -19,6 +19,7 @@ import Test from "./pages/Test";
 import { AuthProvider } from './contexts/AuthContext';
 import Blog from "./pages/Blog";
 import BlogPostDetail from "./pages/BlogPostDetail";
+import SignIn from './components/auth/SignIn';
 
 function App() {
   useEffect(() => {
@@ -45,6 +46,7 @@ function App() {
               <Route path="/test" component={Test} />
               <Route path="/blog" component={Blog} />
               <Route path="/blog/:id" component={BlogPostDetail} />
+              <Route path="/signin" component={SignIn} />
               <Route component={NotFound} />
             </Switch>
           </main>
