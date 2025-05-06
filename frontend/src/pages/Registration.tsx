@@ -27,7 +27,7 @@ export default function Registration() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 py-8 sm:px-6 lg:px-8">
       <div className="bg-white p-6 md:p-10 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-600 mb-4">Joblert</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-blue-600 mb-4">24Jobs</h1>
         <h2 className="text-xl sm:text-2xl font-semibold text-center text-gray-800 mb-2">Create Your Account</h2>
         <p className="text-center text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
           Join Joblert to find jobs, research companies, and more.

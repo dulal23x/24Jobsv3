@@ -2,7 +2,7 @@ export default function Hero() {
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-gray-50 to-white">
       <div className="container">
-        <div className="row align-items-center">
+        <div className="row align-items-start">
           {/* Left column: Text content */}
           <div className="col-md-6 mb-8 md:mb-0">
             <h1 className="fw-bold fs-2 fs-md-1 mb-4 text-gray-800 leading-tight">

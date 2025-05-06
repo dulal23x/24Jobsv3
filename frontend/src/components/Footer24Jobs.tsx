@@ -68,7 +68,7 @@ export default function Footer24Jobs() {
                 {/* Changed ul classes, added spacing */}
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-info-circle text-gray-500"></i> About us</Link></li>
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-briefcase text-gray-500"></i> Careers</Link></li>
-                <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-newspaper text-gray-500"></i> Press</Link></li>
+               
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-journal-text text-gray-500"></i> Blog</Link></li>
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-chat-dots text-gray-500"></i> Contact</Link></li>
               </ul>
@@ -85,43 +85,12 @@ export default function Footer24Jobs() {
                  {/* Changed ul classes, added spacing */}
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-search text-gray-500"></i> Talent Search</Link></li>
                 <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-file-earmark-post text-gray-500"></i> Job Postings</Link></li>
-                <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-star text-gray-500"></i> Premium Services</Link></li>
-                <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-building-gear text-gray-500"></i> Business Solutions</Link></li>
-                <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-building-up text-gray-500"></i> Enterprise Plans</Link></li>
+                
               </ul>
             </div>
 
             {/* Resources & Legal (Combined for better spacing on some screens) */}
-            <div className="mb-4 text-center md:text-left">
-              {/* Resources */}
-              <div className="mb-4">
-                <h6 className="font-semibold mb-3 text-gray-900 flex items-center justify-center md:justify-start gap-2">
-                  <i className="bi bi-book text-blue-700"></i>
-                  Resources
-                </h6>
-                <ul className="list-none p-0 m-0 space-y-2 text-sm">
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-question-circle text-gray-500"></i> Help Center</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-award text-gray-500"></i> Success Stories</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-signpost-2 text-gray-500"></i> Guides</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-calendar-event text-gray-500"></i> Events</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-code-square text-gray-500"></i> Developer API</Link></li>
-                </ul>
-              </div>
-              {/* Legal */}
-              <div>
-                <h6 className="font-semibold mb-3 text-gray-900 flex items-center justify-center md:justify-start gap-2">
-                  <i className="bi bi-shield-check text-blue-700"></i>
-                  Legal
-                </h6>
-                <ul className="list-none p-0 m-0 space-y-2 text-sm">
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-lock text-gray-500"></i> Privacy Policy</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-file-earmark-text text-gray-500"></i> Terms of Service</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-cookie text-gray-500"></i> Cookie Policy</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-universal-access text-gray-500"></i> Accessibility</Link></li>
-                  <li><Link href="#" className="text-gray-600 hover:text-gray-800 flex items-center justify-center md:justify-start gap-1"><i className="bi bi-shield-lock text-gray-500"></i> Security</Link></li>
-                </ul>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>

@@ -393,7 +393,7 @@ export default function People() {
                <input type="text" placeholder="Enter industry..." className="w-full p-2 border rounded text-sm"/>
           </div>
           </aside>
-
+        
           {/* Mobile Sidebar (Modal/Drawer) */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
@@ -435,7 +435,7 @@ export default function People() {
               </div>
             </div>
           )}
-
+          
           {/* Results Area */}
           <main className="lg:col-span-3">
             {/* People Results */}
@@ -525,7 +525,7 @@ export default function People() {
                             <button
                          className={`btn btn-sm ${isFollowing(company.id) ? 'btn-outline-secondary' : 'btn-outline-primary'} w-full sm:w-auto text-xs px-3 py-1.5`}
                          onClick={() => handleFollow(company.id)}
-                       >
+                            >
                          {isFollowing(company.id) ? 'Unfollow' : 'Follow'}
                             </button>
                        <button className="btn btn-sm btn-light w-full sm:w-auto text-xs px-3 py-1.5 flex items-center justify-center gap-1">
