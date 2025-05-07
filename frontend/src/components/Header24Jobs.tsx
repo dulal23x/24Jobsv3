@@ -66,7 +66,7 @@ export default function Header24Jobs() {
           </div>
           
           {/* Centered Navigation - Desktop - Adjusted for better alignment and icon size */}
-          <nav className="d-none d-lg-flex align-items-center justify-content-center  flex-grow-1 gap-5 mx-4">
+          <nav className="d-none d-lg-flex align-items-center justify-content-end  flex-grow-1 gap-2 mx-4">
             <Link href="/jobs">
               <div className={`header-nav-item d-flex align-items-center ${location === '/jobs' ? 'active' : ''}`} style={{ padding: '8px 12px' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="me-2" viewBox="0 0 16 16">
@@ -151,10 +151,10 @@ export default function Header24Jobs() {
           <div className="d-flex gap-3 align-items-center flex-shrink-0">
             {/* Desktop Auth Buttons */}
             <div className="d-none d-md-flex gap-2 position-relative">
-              <a href="#" onClick={toggleSignInPopup}>
+              <Link href="/signin">
                 <button className="btn btn-outline-primary btn-sm" style={{ padding: "6px 18px" }}>Sign In</button>
-              </a>
-              <Link href="/join">
+              </Link>
+              <Link href="/registration">
                 <button className="btn btn-primary btn-sm" style={{ padding: "6px 18px" }}>Join Now</button>
               </Link>
               
@@ -162,9 +162,8 @@ export default function Header24Jobs() {
               {showSignInPopup && (
                 <div 
                   ref={signInPopupRef}
-                  className="position-fixed bg-white shadow-lg" 
+                  className="position-fixed bg-white shadow-lg w-full max-w-sm sm:max-w-md md:w-[400px]"
                   style={{ 
-                    width: '400px',
                     top: '0',
                     right: '0',
                     bottom: '0',
@@ -187,7 +186,7 @@ export default function Header24Jobs() {
                   
                   <div className="d-flex justify-content-end align-items-center mb-3">
                     <span className="text-muted me-2">New to 24Jobs?</span>
-                    <Link href="/join" className="text-primary text-decoration-none fw-medium">
+                    <Link href="/registration" className="text-primary text-decoration-none fw-medium">
                       Register for free
                     </Link>
                   </div>
@@ -308,7 +307,7 @@ export default function Header24Jobs() {
             <a href="#" onClick={toggleSignInPopup} className="btn btn-outline-primary flex-grow-1 py-2 fs-6">
               Sign In
             </a>
-            <Link href="/join" className="btn btn-primary flex-grow-1 py-2 fs-6">
+            <Link href="/registration" className="btn btn-primary flex-grow-1 py-2 fs-6">
               Join Now
             </Link>
           </div>

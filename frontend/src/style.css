@@ -99,7 +99,7 @@ body {
 .btn-primary {
   background-color: #0073B1;
   border-color: #0073B1;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
   padding: 6px 16px;
 }
@@ -112,7 +112,7 @@ body {
 .btn-outline-primary {
   color: #0073B1;
   border-color: #0073B1;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
   padding: 6px 16px;
 }

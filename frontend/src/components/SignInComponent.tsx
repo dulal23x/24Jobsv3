@@ -157,6 +157,8 @@ export function LoginModal({ isOpen, onOpenChange }: LoginModalProps) {
         </div>
       </DialogContent>
     </Dialog>
+
+
   );
 }
 
