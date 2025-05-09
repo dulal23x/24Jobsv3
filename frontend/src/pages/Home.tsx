@@ -11,7 +11,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
       {/* hero section left side */}
             <div className="text-left ">
-              <h1 className="text-5xl lg:text-6xl font-bold mb-4 text-gray-900 text-left tracking-wide leading-[1.3] lg:leading-[1.0] sm:w-[600px]">
+              <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 text-left tracking-wide leading-[1.3] lg:leading-[1.0] sm:w-[600px]">
                 Unlock Your
                 <span className=" ml-2">
                   Professional <span className="text-blue-600">Potential </span>
@@ -40,9 +40,11 @@ export default function Home() {
                     Join Now
                   </button>
                 </Link>
+                <Link href='/Jobs'>
                 <button className="btn btn-outline-primary btn-lg px-5 py-3 rounded-lg transition-colors hover:bg-blue-500 text-xl font-semibold w-full sm:w-auto">
-                  Learn more
+                  Find Jobs
                 </button>
+                </Link>
               </div>
 
               <div className="flex items-center justify-start mb-4">
@@ -405,7 +407,7 @@ export default function Home() {
 
 
        {/* ================= CTA Section ================= */}
-       <section className="cta-section bg-blue-600 text-white py-16 md:py-20">
+       <section className="cta-section bg-blue-600 text-white py-16 md:py-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Take the Next Step?
@@ -420,7 +422,7 @@ export default function Home() {
               </button>
             </Link>
             <Link href="/people">
-              <button className="btn btn-outline-light btn-lg px-8 py-3 rounded-lg font-semibold text-white border-2 border-white transition-colors hover:bg-white hover:text-blue-600 text-lg w-full sm:w-auto">
+              <button className="btn btn-outline-light btn-lg px-8 py-3 rounded-lg font-semibold text-white border-2 border-white transition-color  text-lg w-full sm:w-auto">
                 Explore Talent
               </button>
             </Link>

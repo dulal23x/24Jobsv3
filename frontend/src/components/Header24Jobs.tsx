@@ -51,16 +51,12 @@ export default function Header24Jobs() {
   return (
     <header className="bg-white border-bottom sticky-top" style={{ zIndex: 1030 }}>
       <div className="container">
-        <div className="d-flex align-items-center justify-content-between py-2">
+        <div className="d-flex align-items-center justify-content-between py-4">
           {/* Logo - Increased size slightly */}
           <div className="flex-shrink-0">
             <Link href="/">
               <div className="d-flex align-items-center gap-2 text-decoration-none cursor-pointer">
-                <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="32" height="32" rx="6" fill="#0073B1"/>
-                  <path d="M8 8H24V12H22V10H10V22H22V20H24V24H8V8Z" fill="white"/>
-                </svg>
-                <span className="fw-bold fs-3" style={{ color: "#0073B1" }}>24Jobs</span>
+                <img src="/24jobs-logo.png" alt="24Jobs Logo" style={{ height: "36px", width: "auto" }} />
               </div>
             </Link>
           </div>
