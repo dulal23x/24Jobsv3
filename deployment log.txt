@@ -85,7 +85,9 @@ Let's assume your Django project is named `24jobsv3` and you'll deploy it in `/v
     sudo apt install -y python3-pip python3-venv
     ```
 2.  **Create Project Directory and Clone Backend Repository:**
+    **Warning:** If the directory already exists and you want to overwrite it, the following commands will remove it first. Make sure to back up any important files before proceeding.
     ```bash
+    sudo rm -rf /var/www/24jobsv3  # This deletes the existing directory and its contents
     sudo mkdir -p /var/www/24jobsv3
     sudo chown $USER:$USER /var/www/24jobsv3
     cd /var/www/24jobsv3
