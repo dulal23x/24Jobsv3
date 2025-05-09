@@ -101,11 +101,19 @@ Let's assume your Django project is named `24jobsv3` and you'll deploy it in `/v
     You should see `(venv)` at the beginning of your terminal prompt.
 
 4.  **Install Dependencies:**
-    Assuming you have a `requirements.txt` file in your backend project:
+    **Before proceeding:** First, check if requirements.txt exists in your project directory. If it doesn't, you may need to create it or install dependencies manually.
     ```bash
-    pip install -r requirements.txt
-    pip install gunicorn # We'll use Gunicorn to serve the Django app
+    if [ -f requirements.txt ]; then
+        pip install -r requirements.txt
+        pip install gunicorn
+    else
+        echo "requirements.txt not found. Install dependencies manually or generate the file first."
+        # If you have a list of dependencies, install them like this:
+        # pip install django gunicorn  # Replace with your actual packages
+        # Or generate requirements.txt from your local environment and upload it.
+    fi
     ```
+    If requirements.txt is missing, you can generate it locally and then copy it to the server. For example, on your local machine (in D:\24Jobsv3), run: `pip freeze > requirements.txt` and then upload it via SCP or add it to your Git repo.
 
 5.  **Configure Django for Production:**
     *   **`settings.py`:**
