@@ -34,7 +34,7 @@ ALLOWED_HOSTS = ['162.220.11.66', 'yourdomain.com']  # Replace with your actual 
 
 
 # Application definition
-
+exi
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
