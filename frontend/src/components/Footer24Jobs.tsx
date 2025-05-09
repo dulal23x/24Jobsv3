@@ -20,7 +20,7 @@ export default function Footer24Jobs() {
                 <i className="bi bi-briefcase-fill mr-2"></i>
                 <span className="tracking-wide">24Jobs</span>
               </div>
-              <p className="text-gray-600 mb-4  md:text-start sm:text-center  text-md sm:text-[25px] md:text-sm ">
+              <p className="text-gray-600 mb-4  md:text-start sm:text-center  text-md sm:text-[29px] md:text-sm ">
                 {/* Adjusted text size and alignment */}
                 The professional networking platform for your career growth.
               </p>
