@@ -135,7 +135,7 @@ export default function Home() {
       </section>
 
       {/* Employer section start */}
-      <section className='w-full py-10 md:py-16' style={{ background: 'linear-gradient(135deg, #415896 0%, #3b4e8c 100%)' }}>
+      <section className='w-full py-8 md:py-10' style={{ background: 'linear-gradient(135deg, #415896 0%, #3b4e8c 100%)' }}>
         <div className="text-center lg:text-left text-white px-4 sm:px-6 lg:px-8">
           <h2 className='text-3xl md:text-4xl font-bold mb-4'>Are You An Employer?</h2>
           <p className="text-lg md:text-xl mb-6 mx-auto lg:mx-0 max-w-xl">
@@ -250,29 +250,7 @@ export default function Home() {
       </section>
       {/* ============= Test.tsx Content End ============= */}
 
-      {/* ================= CTA Section ================= */}
-      <section className="cta-section bg-blue-600 text-white py-16 md:py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Take the Next Step?
-          </h2>
-          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-            Join millions of professionals who are already leveraging 24Jobs to achieve their career aspirations.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link href="/registration">
-              <button className="btn btn-light btn-lg px-8 py-3 rounded-lg font-semibold text-blue-600 shadow-md transition-transform hover:translate-y-[-3px] text-lg w-full sm:w-auto">
-                Get Started Free
-              </button>
-            </Link>
-            <Link href="/people">
-              <button className="btn btn-outline-light btn-lg px-8 py-3 rounded-lg font-semibold text-white border-2 border-white transition-colors hover:bg-white hover:text-blue-600 text-lg w-full sm:w-auto">
-                Explore Talent
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
+     
 
       {/* ================= Trusted By Section Start ================= */}
       {/*
@@ -420,6 +398,32 @@ export default function Home() {
                 <div className="text-lg md:text-xl">{stat.label}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+
+       {/* ================= CTA Section ================= */}
+       <section className="cta-section bg-blue-600 text-white py-16 md:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to Take the Next Step?
+          </h2>
+          <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+            Join millions of professionals who are already leveraging 24Jobs to achieve their career aspirations.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Link href="/registration">
+              <button className="btn btn-light btn-lg px-8 py-3 rounded-lg font-semibold text-blue-600 shadow-md transition-transform hover:translate-y-[-3px] text-lg w-full sm:w-auto">
+                Get Started Free
+              </button>
+            </Link>
+            <Link href="/people">
+              <button className="btn btn-outline-light btn-lg px-8 py-3 rounded-lg font-semibold text-white border-2 border-white transition-colors hover:bg-white hover:text-blue-600 text-lg w-full sm:w-auto">
+                Explore Talent
+              </button>
+            </Link>
           </div>
         </div>
       </section>
