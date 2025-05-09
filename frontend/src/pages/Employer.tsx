@@ -111,12 +111,15 @@ export default function Employer() {
               </div>
             </div>
             <div className="col-lg-6 text-center">
-              <img 
+              {/* <img 
                 src="https://via.placeholder.com/600x400?text=Hiring+Made+Simple" 
                 alt="Hiring Made Simple" 
                 className="img-fluid rounded-3 shadow-lg"
                 style={{ maxHeight: '400px' }}
-              />
+              /> */}
+              <div style={{ width: '100%', height: '400px', backgroundColor: '#e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '0.3rem' }} className="shadow-lg">
+                <span className="text-muted">Hiring Made Simple (Placeholder)</span>
+              </div>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 export default function Hero() {
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-gray-50 to-white">
-      <div className="container">
+      <div className="container bg-yellow-300">
         <div className="row align-items-start">
           {/* Left column: Text content */}
           <div className="col-md-6 mb-8 md:mb-0">
@@ -12,7 +12,7 @@ export default function Hero() {
               Build your network, discover opportunities, and advance your career with the professional community that puts your growth first.
             </p>
             <div className="d-flex flex-wrap gap-3">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded font-medium transition-colors">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-4 rounded font-medium transition-colors">
                 Join the community
               </button>
               <button className="text-blue-600 border border-blue-600 px-5 py-3 rounded font-medium hover:bg-blue-50 transition-colors">
