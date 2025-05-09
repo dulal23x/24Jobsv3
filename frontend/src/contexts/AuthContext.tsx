@@ -29,7 +29,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user] = useState<UserProfile | null>({ role: 'developer', credits_remaining: 1000 });  // Simple state for demo; no real authentication
+  const [user] = useState<UserProfile | null>({ 
+    id: 1,
+    username: 'developer',
+    email: 'developer@example.com',
+    first_name: 'Dev',
+    last_name: 'User',
+    user_type: 'developer',
+    credits_remaining: 1000
+  });  // Simple state for demo; no real authentication
 
   // Memoized function to fetch user profile data
   const fetchUserProfile = useCallback(async () => {
