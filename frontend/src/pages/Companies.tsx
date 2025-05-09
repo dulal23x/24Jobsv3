@@ -45,7 +45,7 @@ export default function Companies() {
             location: 'San Francisco, CA',
             size: '1000-5000 employees',
             website: 'www.techcorp.com',
-            logo: 'https://via.placeholder.com/150?text=T'
+            logo: ''
           },
           { 
             id: 102, 
@@ -54,7 +54,7 @@ export default function Companies() {
             location: 'New York, NY',
             size: '5000-10000 employees',
             website: 'www.globalmedia.com',
-            logo: 'https://via.placeholder.com/150?text=G'
+            logo: ''
           },
           { 
             id: 103, 
@@ -63,7 +63,7 @@ export default function Companies() {
             location: 'Austin, TX',
             size: '500-1000 employees',
             website: 'www.innotech.io',
-            logo: 'https://via.placeholder.com/150?text=I'
+            logo: ''
           }
         ];
       }
@@ -365,6 +365,12 @@ export default function Companies() {
                               alt={company.name} 
                               className="img-fluid rounded"
                               style={{ maxHeight: '80px', objectFit: 'contain' }}
+                              onError={(e) => {
+                                // @ts-ignore
+                                e.target.onerror = null; 
+                                // @ts-ignore
+                                e.target.src=`/images/company-logo-fallback.png?text=${company.name.charAt(0)}`;
+                              }}
                             />
                           </div>
                           <h5 className="card-title fw-bold mb-1">{company.name}</h5>
@@ -408,6 +414,12 @@ export default function Companies() {
                             alt={company.name} 
                             className="img-fluid rounded"
                             style={{ maxHeight: '50px', objectFit: 'contain' }}
+                            onError={(e) => {
+                              // @ts-ignore
+                              e.target.onerror = null; 
+                              // @ts-ignore
+                              e.target.src=`/images/company-logo-fallback.png?text=${company.name.charAt(0)}`;
+                            }}
                           />
                         </div>
                         <div className="col-md-7">

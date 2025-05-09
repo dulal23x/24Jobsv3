@@ -3,16 +3,16 @@ import { useRoute, Link } from 'wouter';
 
 // Mock company data
 const companies = [
-  { id: 101, name: 'TechCorp Solutions', industry: 'Technology', size: '1000-5000 employees', location: 'San Francisco, CA', website: 'www.techcorp.com', logo: 'https://via.placeholder.com/150?text=TechCorp' },
-  { id: 102, name: 'Global Media', industry: 'Media', size: '5000-10000 employees', location: 'New York, NY', website: 'www.globalmedia.com', logo: 'https://via.placeholder.com/150?text=GlobalMedia' },
-  { id: 103, name: 'InnoTech', industry: 'Software', size: '500-1000 employees', location: 'Austin, TX', website: 'www.innotech.io', logo: 'https://via.placeholder.com/150?text=InnoTech' },
-  { id: 104, name: 'NextGen Products', industry: 'Manufacturing', size: '1000-5000 employees', location: 'Seattle, WA', website: 'www.nextgen.com', logo: 'https://via.placeholder.com/150?text=NextGen' },
-  { id: 105, name: 'Capital Investments', industry: 'Finance', size: '500-1000 employees', location: 'Chicago, IL', website: 'www.capitalinv.com', logo: 'https://via.placeholder.com/150?text=Capital' },
-  { id: 106, name: 'Creative Solutions', industry: 'Design', size: '100-500 employees', location: 'Los Angeles, CA', website: 'www.creative.co', logo: 'https://via.placeholder.com/150?text=Creative' },
-  { id: 107, name: 'Tech Innovations', industry: 'Technology', size: '100-500 employees', location: 'Boston, MA', website: 'www.techinnovations.com', logo: 'https://via.placeholder.com/150?text=TechInno' },
-  { id: 108, name: 'Global Sales Inc', industry: 'Sales', size: '1000-5000 employees', location: 'Miami, FL', website: 'www.globalsales.com', logo: 'https://via.placeholder.com/150?text=GlobalSales' },
-  { id: 109, name: 'People First', industry: 'Human Resources', size: '100-500 employees', location: 'Denver, CO', website: 'www.peoplefirst.org', logo: 'https://via.placeholder.com/150?text=PeopleFirst' },
-  { id: 110, name: 'Efficient Systems', industry: 'Operations', size: '500-1000 employees', location: 'Portland, OR', website: 'www.efficient.co', logo: 'https://via.placeholder.com/150?text=Efficient' }
+  { id: 101, name: 'TechCorp Solutions', industry: 'Technology', size: '1000-5000 employees', location: 'San Francisco, CA', website: 'www.techcorp.com', logo: '' /*'https://via.placeholder.com/150?text=TechCorp'*/ },
+  { id: 102, name: 'Global Media', industry: 'Media', size: '5000-10000 employees', location: 'New York, NY', website: 'www.globalmedia.com', logo: '' /*'https://via.placeholder.com/150?text=GlobalMedia'*/ },
+  { id: 103, name: 'InnoTech', industry: 'Software', size: '500-1000 employees', location: 'Austin, TX', website: 'www.innotech.io', logo: '' /*'https://via.placeholder.com/150?text=InnoTech'*/ },
+  { id: 104, name: 'NextGen Products', industry: 'Manufacturing', size: '1000-5000 employees', location: 'Seattle, WA', website: 'www.nextgen.com', logo: '' /*'https://via.placeholder.com/150?text=NextGen'*/ },
+  { id: 105, name: 'Capital Investments', industry: 'Finance', size: '500-1000 employees', location: 'Chicago, IL', website: 'www.capitalinv.com', logo: '' /*'https://via.placeholder.com/150?text=Capital'*/ },
+  { id: 106, name: 'Creative Solutions', industry: 'Design', size: '100-500 employees', location: 'Los Angeles, CA', website: 'www.creative.co', logo: '' /*'https://via.placeholder.com/150?text=Creative'*/ },
+  { id: 107, name: 'Tech Innovations', industry: 'Technology', size: '100-500 employees', location: 'Boston, MA', website: 'www.techinnovations.com', logo: '' /*'https://via.placeholder.com/150?text=TechInno'*/ },
+  { id: 108, name: 'Global Sales Inc', industry: 'Sales', size: '1000-5000 employees', location: 'Miami, FL', website: 'www.globalsales.com', logo: '' /*'https://via.placeholder.com/150?text=GlobalSales'*/ },
+  { id: 109, name: 'People First', industry: 'Human Resources', size: '100-500 employees', location: 'Denver, CO', website: 'www.peoplefirst.org', logo: '' /*'https://via.placeholder.com/150?text=PeopleFirst'*/ },
+  { id: 110, name: 'Efficient Systems', industry: 'Operations', size: '500-1000 employees', location: 'Portland, OR', website: 'www.efficient.co', logo: '' /*'https://via.placeholder.com/150?text=Efficient'*/ }
 ];
 
 export default function Company() {
@@ -37,7 +37,7 @@ export default function Company() {
           <div className="row align-items-center">
             <div className="col-md-2 text-center mb-3 mb-md-0">
               <img 
-                src={company.logo} 
+                src={company.logo || `/images/company-logo-fallback.png`} 
                 alt={company.name} 
                 className="img-fluid rounded"
                 style={{ maxWidth: '120px' }}
@@ -155,7 +155,7 @@ export default function Company() {
                     <Link key={similarCompany.id} href={`/company/${similarCompany.id}`}>
                       <div className="list-group-item list-group-item-action d-flex align-items-center p-3">
                         <img 
-                          src={similarCompany.logo}
+                          src={similarCompany.logo || `/images/company-logo-fallback.png`}
                           alt={similarCompany.name}
                           className="rounded me-3"
                           width="40"
