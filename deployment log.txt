@@ -1,0 +1,433 @@
+deploying a full-stack application like "24Jobs" to a VPS for the first time can seem daunting, but I'll guide you through it step-by-step. This guide will cover connecting to your server, setting up the environment, deploying your Django backend and React frontend, and configuring a web server (Nginx) to make your site live.
+
+SSH username is root
+Pass is Dd151515@
+
+**Important Notes Before You Start:**
+
+*   **Your IP for VNC Access:** You mentioned `IP to allow VNC access to 144.48.109.105`. Ensure that your current internet IP address is `144.48.109.105` or that you've added this IP to the VNC access allow list in your Interserver control panel. If VNC access is restricted and your IP isn't allowed, you won't be able to connect.
+*   **Backup Your Code:** Always have a backup of your code (e.g., on GitHub/GitLab) before making major changes or deployments.
+
+
+*   **Root Access:** Many commands will require `sudo` (administrator) privileges.
+*   **Patience:** This is a multi-step process. Take your time with each step.
+*   **Repositories:** Your `README.md` suggests separate frontend and backend code. I'll assume you have two repositories.
+
+Here's a detailed plan:
+
+## Phase 1: Connecting to Your VPS
+
+You have two main ways to connect: VNC (graphical interface) and SSH (command-line). For server management, SSH is generally preferred for its efficiency and security once you're comfortable with the command line.
+
+### 1A. Connecting via VNC (as requested)
+
+VNC gives you a graphical desktop environment for your server.
+
+1.  **VNC Client:** You'll need a VNC client installed on your computer. Popular options include:
+    *   RealVNC Viewer
+    *   TightVNC
+    *   TigerVNC
+2.  **Connection Details:**
+    *   VNC Server IP & Port: `216.219.90.250:6090`
+3.  **Connect:**
+    *   Open your VNC client.
+    *   Enter `216.219.90.250:6090` as the VNC server address.
+    *   You'll likely be prompted for a password. This password would have been provided by Interserver or set up during the VPS provisioning.
+    *   Once connected, you should see an Ubuntu desktop interface. You can open a terminal application from here to run commands.
+
+### 1B. Connecting via SSH (Recommended for most tasks)
+
+SSH provides a secure command-line interface to your server.
+
+1.  **SSH Client:**
+    *   **Windows:** You can use PowerShell, Command Prompt (if OpenSSH client is installed, which is common in modern Windows 10/11), or a third-party client like PuTTY.
+    *   **macOS/Linux:** Use the built-in `Terminal` application.
+2.  **Connection Details:**
+    *   Server IP: `162.220.11.66`
+    *   Username: Typically `root` or a user created during setup (Interserver will specify this). If you log in as `root` initially, it's good practice to create a non-root user with sudo privileges for regular tasks.
+    *   Password: Provided by Interserver.
+3.  **Connect Command (replace `your_username` if it's not `root`):**
+    Open your terminal/PowerShell and type:
+    ```bash
+    ssh root@162.220.11.66
+    ```
+    *   You might see a message about the authenticity of the host. Type `yes` to continue.
+    *   Enter your server password when prompted.
+
+For the rest of this guide, commands are intended to be run in a terminal, either via SSH or a terminal window opened through your VNC session.
+
+## Phase 2: Initial Server Setup
+
+1.  **Update Your Server:**
+    It's crucial to start with an up-to-date system.
+    ```bash
+    sudo apt update
+    sudo apt upgrade -y
+    ```y
+2.  **Install Essential Tools:**
+    These include `git` (for cloning your code), `build-essential` (for compiling software), `curl`, and `zip/unzip`.
+    ```bash
+    sudo apt install -y git build-essential curl zip unzip
+    ```
+3.  **Set Timezone (Optional but good practice):**
+    ```bash
+    sudo timedatectl set-timezone Your/Timezone # e.g., America/New_York
+    ```
+    You can list available timezones with `timedatectl list-timezones`.
+
+## Phase 3: Setting Up the Backend (Django)
+
+Let's assume your Django project is named `24jobsv3` and you'll deploy it in `/var/www/`.
+
+1.  **Install Python, Pip, and Virtualenv:**
+    Ubuntu usually comes with Python. Let's ensure pip and venv are installed for Python 3.
+    ```bash
+    sudo apt install -y python3-pip python3-venv
+    ```
+2.  **Create Project Directory and Clone Backend Repository:**
+    ```bash
+    sudo mkdir -p /var/www/24jobsv3
+    sudo chown $USER:$USER /var/www/24jobsv3
+    cd /var/www/24jobsv3
+    git clone <your_backend_repo_url> .
+    ```
+    Replace `<your_backend_repo_url>` with the actual URL of your Django backend repository.
+
+3.  **Create a Python Virtual Environment:**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+    You should see `(venv)` at the beginning of your terminal prompt.
+
+4.  **Install Dependencies:**
+    Assuming you have a `requirements.txt` file in your backend project:
+    ```bash
+    pip install -r requirements.txt
+    pip install gunicorn # We'll use Gunicorn to serve the Django app
+    ```
+
+5.  **Configure Django for Production:**
+    *   **`settings.py`:**
+        *   `DEBUG = False`
+        *   `ALLOWED_HOSTS = ['162.220.11.66', 'yourdomain.com']` (replace `yourdomain.com` if you have one, or add it later)
+        *   `SECRET_KEY`: **Crucial!** Do NOT use your development secret key. Generate a new one. You can use an online Django secret key generator or a Python script:
+            ```python
+            # In python shell (type 'python3', then enter these lines):
+            # from django.core.management.utils import get_random_secret_key
+            # print(get_random_secret_key())
+            # exit()
+            ```
+            Store this key securely. One common practice is to use environment variables.
+    *   **Environment Variables (Recommended):** Instead of hardcoding sensitive settings in `settings.py`, use environment variables. A common way is to use a `.env` file and a library like `python-dotenv`.
+        *   Install `python-dotenv`: `pip install python-dotenv`
+        *   Create a `.env` file in your project root (e.g., `/var/www/24jobsv3/.env`):
+            ```
+            SECRET_KEY='your_generated_secret_key'
+            DEBUG=False
+            DATABASE_URL='sqlite:///db.sqlite3' # For SQLite
+            # Add other variables as needed
+            ```
+        *   Make sure `.env` is in your `.gitignore` if you commit it (though for server-side .env, it's often managed directly).
+        *   Modify `settings.py` to load these:
+            ```python
+            import os
+            from dotenv import load_dotenv
+            load_dotenv() # Loads variables from .env
+
+            SECRET_KEY = os.environ.get('SECRET_KEY')
+            DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+            # ... other settings
+            ```
+    *   **Database:** Your `db.sqlite3` suggests you're using SQLite. For a beginner setup, this is okay.
+        The `DATABASE_URL` for SQLite would point to the path of your `db.sqlite3` file.
+        Ensure the `db.sqlite3` file and its directory are writable by the user running the Django application (which will be Gunicorn).
+        ```bash
+        # If your db.sqlite3 is in the project root:
+        # (No changes needed if using default Django SQLite config or DATABASE_URL='sqlite:///db.sqlite3')
+        ```
+    *   **Static and Media Files:**
+        In your `settings.py`, ensure `STATIC_URL` and `STATIC_ROOT` are set:
+        ```python
+        STATIC_URL = '/static/'
+        STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # For collectstatic
+
+        MEDIA_URL = '/media/'
+        MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+        ```
+        Create the `mediafiles` directory:
+        ```bash
+        mkdir /var/www/24jobsv3/mediafiles
+        ```
+
+6.  **Run Database Migrations and Collect Static Files:**
+    (Make sure your virtual environment `venv` is active)
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py collectstatic --noinput
+    ```
+
+7.  **Test Gunicorn:**
+    Replace `yourproject.wsgi` with the actual path to your WSGI application (e.g., `24jobsv3.wsgi` if your project is named `24jobsv3`).
+    ```bash
+    gunicorn --bind 0.0.0.0:8000 24jobsv3.wsgi:application
+    ```
+    *   Open a new terminal (if via SSH) or tab (if in VNC terminal) and try: `curl http://127.0.0.1:8000`. You should see HTML output or an error if something is wrong.
+    *   Press `Ctrl+C` to stop Gunicorn.
+    *   If you need to allow access from your local machine to test `http://162.220.11.66:8000`, you might need to temporarily adjust the server's firewall (see UFW section later, but be careful opening ports publicly before Nginx is set up).
+
+## Phase 4: Setting Up the Frontend (React)
+
+Let's assume your React project is named `frontend_24jobs` and you'll deploy its build files.
+
+1.  **Install Node.js and npm:**
+    ```bash
+    sudo apt install -y nodejs npm
+    # It's often better to install a specific version of Node using NVM (Node Version Manager)
+    # curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    # source ~/.bashrc # Or close and reopen terminal
+    # nvm install --lts # Installs the latest LTS version
+    # nvm use --lts
+    # node -v && npm -v # Verify installation
+    ```
+    Using NVM is recommended for better Node version management. If you use NVM, make sure to source `~/.bashrc` or open a new terminal before proceeding.
+
+2.  **Create Project Directory and Clone Frontend Repository:**
+    ```bash
+    sudo mkdir -p /var/www/frontend_24jobs
+    sudo chown $USER:$USER /var/www/frontend_24jobs
+    cd /var/www/frontend_24jobs
+    git clone <your_frontend_repo_url> .
+    ```
+    Replace `<your_frontend_repo_url>` with your React frontend repository URL.
+
+3.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+
+4.  **Configure API URL (if necessary):**
+    Your React app needs to know where to send API requests. If it's hardcoded to `localhost:8000` or similar, you'll need to change it.
+    *   **Best Practice:** Use environment variables during the build process. For Create React App, these are `REACT_APP_*` variables.
+        Create a `.env.production` file in `/var/www/frontend_24jobs`:
+        ```
+        REACT_APP_API_URL=/api
+        ```
+        This assumes your Nginx will proxy requests starting with `/api` to your backend.
+    *   Ensure your frontend code uses `process.env.REACT_APP_API_URL` to make API calls.
+
+5.  **Build the Frontend for Production:**
+    The build command might vary based on your setup (`package.json`).
+    ```bash
+    npm run build
+    ```
+    This will typically create a `build` or `dist` folder (e.g., `/var/www/frontend_24jobs/build`) containing static HTML, CSS, and JavaScript files. Note this path.
+
+## Phase 5: Setting Up Nginx as a Web Server and Reverse Proxy
+
+Nginx will serve your static frontend files and pass API requests to your Django backend (Gunicorn).
+
+1.  **Install Nginx:**
+    ```bash
+    sudo apt install -y nginx
+    ```
+2.  **Start and Enable Nginx:**
+    ```bash
+    sudo systemctl start nginx
+    sudo systemctl enable nginx # Start Nginx on boot
+    ```
+3.  **Configure Nginx Server Block:**
+    Create a new Nginx configuration file for your site.
+    ```bash
+    sudo nano /etc/nginx/sites-available/24jobs
+    ```
+    Paste the following configuration, adjusting paths as necessary:
+
+    ```nginx
+    server {
+        listen 80;
+        server_name 162.220.11.66 yourdomain.com; # Replace yourdomain.com if you have one
+
+        # Path to your Django backend's static files (collected by collectstatic)
+        location /static/ {
+            alias /var/www/24jobsv3/staticfiles/;
+        }
+
+        # Path to your Django backend's media files
+        location /media/ {
+            alias /var/www/24jobsv3/mediafiles/;
+        }
+
+        # Proxy API requests to the Django backend (Gunicorn)
+        location /api/ {
+            proxy_pass http://unix:/run/gunicorn_24jobsv3.sock;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Serve React frontend static files
+        location / {
+            root /var/www/frontend_24jobs/build; # Path to your React build folder
+            try_files $uri $uri/ /index.html;   # For React Router
+        }
+
+        # Optional: Add error pages, logging, etc.
+        # error_log /var/log/nginx/24jobs_error.log;
+        # access_log /var/log/nginx/24jobs_access.log;
+    }
+    ```
+    *   Save the file (Ctrl+O, Enter, then Ctrl+X in nano).
+
+4.  **Enable the Site and Test Nginx Configuration:**
+    ```bash
+    sudo ln -s /etc/nginx/sites-available/24jobs /etc/nginx/sites-enabled/
+    sudo nginx -t # Test configuration
+    ```
+    If the test is successful, restart Nginx:
+    ```bash
+    sudo systemctl restart nginx
+    ```
+
+## Phase 6: Running the Backend with Systemd
+
+Systemd will manage your Gunicorn process, ensuring it starts on boot and restarts if it fails.
+
+1.  **Create a Systemd Service File for Gunicorn:**
+    ```bash
+    sudo nano /etc/systemd/system/gunicorn_24jobs.service
+    ```
+    Paste the following, adjusting paths and user:
+
+    ```ini
+    [Unit]
+    Description=gunicorn daemon for 24jobs
+    After=network.target
+
+    [Service]
+    User=your_user # The user that owns the backend files (e.g., the user you are logged in as, NOT root usually)
+    Group=www-data # Or the group of your_user
+    WorkingDirectory=/var/www/24jobsv3
+    EnvironmentFile=/var/www/24jobsv3/.env # Path to your .env file if you use one
+    ExecStart=/var/www/24jobsv3/venv/bin/gunicorn \
+        --workers 3 \
+        --bind unix:/run/gunicorn_24jobsv3.sock \
+        24jobsv3.wsgi:application
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+    *   **`User` and `Group`:** If you created a dedicated user for your app, use that. Otherwise, use the user you've been working with (ensure it's not `root` for long-term running).
+    *   **`WorkingDirectory`:** Path to your Django project.
+    *   **`EnvironmentFile`:** If you are using a `.env` file for Django settings.
+    *   **`ExecStart`:**
+        *   Path to Gunicorn in your virtual environment.
+        *   `--workers 3`: Adjust based on your server's CPU cores (typically `2 * num_cores + 1`). For 2 slices, 3 might be okay.
+        *   `--bind unix:/run/gunicorn_24jobsv3.sock`: Gunicorn will listen on a Unix socket. This is efficient for Nginx communication.
+        *   `24jobsv3.wsgi:application`: Path to your WSGI application.
+
+    Save and close the file.
+
+2.  **Adjust Nginx for Socket Communication (Important!):**
+    Since Gunicorn is now listening on a socket, update your Nginx config:
+    ```bash
+    sudo nano /etc/nginx/sites-available/24jobs
+    ```
+    Change the `proxy_pass` line in the `/api/` location block:
+    ```nginx
+    # ... other Nginx settings ...
+        location /api/ {
+            # proxy_pass http://127.0.0.1:8000/; # Old line
+            proxy_pass http://unix:/run/gunicorn_24jobsv3.sock; # New line
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    # ... other Nginx settings ...
+    ```
+    Save, test, and restart Nginx:
+    ```bash
+    sudo nginx -t
+    sudo systemctl restart nginx
+    ```
+
+3.  **Start and Enable the Gunicorn Service:**
+    ```bash
+    sudo systemctl daemon-reload # Reload systemd to recognize the new service
+    sudo systemctl start gunicorn_24jobs
+    sudo systemctl enable gunicorn_24jobs # Start Gunicorn on boot
+    ```
+
+4.  **Check Gunicorn Status:**
+    ```bash
+    sudo systemctl status gunicorn_24jobs
+    # Check for errors:
+    # sudo journalctl -u gunicorn_24jobs
+    ```
+    If it's running, Nginx should now be able to proxy requests to it.
+
+## Phase 7: Accessing Your Website
+
+At this point, you should be able to access your website by navigating to your server's IP address in a web browser:
+
+`http://162.220.11.66`
+
+*   **DNS:** If you have a domain name (e.g., `www.24jobs.com`), you need to go to your domain registrar's DNS settings and create an `A` record pointing your domain (and `www` subdomain) to `162.220.11.66`. DNS changes can take some time to propagate. After setting up DNS, you'd update the `server_name` in your Nginx config.
+
+## Phase 8: Important Next Steps & Security
+
+1.  **Firewall (UFW - Uncomplicated Firewall):**
+    Ubuntu uses UFW. You need to allow SSH, HTTP, and HTTPS traffic.
+    ```bash
+    sudo ufw default deny incoming
+    sudo ufw default allow outgoing
+    sudo ufw allow ssh       # Or 'sudo ufw allow 22'
+    sudo ufw allow http      # Or 'sudo ufw allow 80'
+    sudo ufw allow https     # Or 'sudo ufw allow 443'
+    sudo ufw enable          # This will enable the firewall
+    sudo ufw status
+    ```
+    **Warning:** Enabling the firewall will block all ports not explicitly allowed. Ensure SSH is allowed before enabling, or you might lock yourself out.
+
+2.  **HTTPS with Let's Encrypt (Highly Recommended):**
+    Secure your site with a free SSL certificate from Let's Encrypt.
+    ```bash
+    sudo apt install -y certbot python3-certbot-nginx
+    sudo certbot --nginx -d 162.220.11.66 # Or -d yourdomain.com -d www.yourdomain.com after DNS is set up
+    ```
+    Follow the prompts. Certbot will automatically update your Nginx configuration for HTTPS and set up auto-renewal.
+
+3.  **Database:**
+    While SQLite is fine for starting, for a production application, consider migrating to a more robust database like PostgreSQL or MySQL. This is a more involved process for later.
+
+4.  **Backups:**
+    Regularly back up your database and your code/media files.
+
+5.  **Regular Updates:**
+    Keep your server and software up to date:
+    ```bash
+    sudo apt update && sudo apt upgrade -y
+    # Also update pip packages within your virtual environment periodically.
+    ```
+
+## Troubleshooting Tips
+
+*   **Check Logs:**
+    *   Nginx: `/var/log/nginx/error.log` and `/var/log/nginx/access.log` (or the custom ones you set).
+    *   Gunicorn/Django (Systemd): `sudo journalctl -u gunicorn_24jobs`
+    *   Django `DEBUG = True` (temporarily, for development only!) can give more detailed error pages if the backend is the issue. **Remember to set it back to `False`!**
+*   **Permissions:** File and directory permissions are a common source of issues. Ensure the user running Gunicorn/Nginx has read (and sometimes write) access to the necessary files/directories.
+*   **Nginx Configuration Test:** `sudo nginx -t` is your friend.
+*   **Gunicorn Direct Test:** Temporarily stop the `gunicorn_24jobs` service (`sudo systemctl stop gunicorn_24jobs`) and try running Gunicorn manually from your project directory (with the virtualenv activated) to see direct error messages:
+    ```bash
+    # cd /var/www/24jobsv3
+    # source venv/bin/activate
+    # gunicorn --bind 0.0.0.0:8000 24jobsv3.wsgi:application
+    ```
+
+This is a comprehensive guide to get you started. Take each phase one step at a time. If you encounter specific errors, those error messages will be key to debugging. Good luck!
+
+
